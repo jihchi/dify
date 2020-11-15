@@ -1,8 +1,12 @@
+const KY: f32 = 0.5053;
+const KI: f32 = 0.299;
+const KQ: f32 = 0.1957;
+
 #[derive(Debug, PartialEq)]
 pub struct YIQ {
-    pub y: f32,
-    pub i: f32,
-    pub q: f32,
+    pub y: f32, // luminance, in range [0, 1]
+    pub i: f32, // hue of color, in range ~ [-0.5, 0.5]
+    pub q: f32, // saturation of color, in range ~ [-0.5, 0.5]
 }
 
 impl YIQ {
@@ -24,14 +28,17 @@ impl YIQ {
         Self { y, i, q }
     }
 
+    // in the performance critical applications, square root can be omiitted
     pub fn squared_distance(&self, other: &Self) -> f32 {
         let dy = other.y - self.y;
         let di = other.i - self.i;
         let dq = other.q - self.q;
 
-        dy.powi(2) + di.powi(2) + dq.powi(2)
+        // compensate for irregularities, introduce coefficients
+        KY * dy.powi(2) + KI * di.powi(2) + KQ * dq.powi(2)
     }
 
+    // taking the square root of the distance gives better perceptual results
     pub fn square_root_distance(&self, other: &Self) -> f32 {
         self.squared_distance(other).sqrt()
     }
@@ -79,7 +86,7 @@ mod tests {
             i: -0.1,
             q: 0.1,
         };
-        assert_eq!(a.squared_distance(&b), 0.080000006);
+        assert_eq!(a.squared_distance(&b), 0.019788);
     }
 
     #[test]
@@ -109,6 +116,6 @@ mod tests {
             i: -0.1,
             q: 0.1,
         };
-        assert_eq!(a.square_root_distance(&b), 0.28284273);
+        assert_eq!(a.square_root_distance(&b), 0.14066982);
     }
 }
