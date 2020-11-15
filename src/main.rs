@@ -58,6 +58,11 @@ fn difference(
     for x in 0..width {
         for y in 0..height {
             let pixel = (left.get_pixel(x, y), right.get_pixel(x, y));
+
+            if pixel.0 == pixel.1 {
+                continue;
+            }
+
             let rgb = (pixel.0.to_rgb(), pixel.1.to_rgb());
             let yiq = (YIQ::from_rgb(&rgb.0), YIQ::from_rgb(&rgb.1));
             let delta = yiq.0.squared_distance(&yiq.1);
