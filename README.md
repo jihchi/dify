@@ -7,7 +7,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/jihchi/dify">
-    <img src="logo.png" alt="Logo" width="80" height="80">
+    <img src="logo.png" alt="Logo" width="173" height="118">
   </a>
   <h3 align="center">Dify</h3>
   <p align="center">
