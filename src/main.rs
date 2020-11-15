@@ -1,16 +1,59 @@
+mod cli;
+mod constant;
+
 use anyhow::{anyhow, bail, Context, Result};
 use colored::*;
-use getopts::Options;
-use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Pixel, Rgba, RgbaImage};
-use std::env;
-
 use dify::YIQ;
+use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Pixel, Rgba, RgbaImage};
 
-const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
+fn main() -> Result<()> {
+    let cli = cli::Cli::new()?;
 
-fn print_help(program: &str, opts: Options) {
-    let brief = format!("Usage: {} [options]", program);
-    print!("{}", opts.usage(&brief));
+    if cli.matches.opt_present("h") {
+        cli.print_help();
+        return Ok(());
+    }
+
+    let left_image_path = cli.matches.opt_str("l");
+    let right_image_path = cli.matches.opt_str("r");
+
+    match (left_image_path, right_image_path) {
+        (Some(left), Some(right)) => {
+            let mix_output_with_left = cli.matches.opt_present("m");
+            let dont_check_layout = cli.matches.opt_present("d");
+
+            let output = match cli.matches.opt_str("o") {
+                Some(s) => s,
+                None => "diff.png".to_string(),
+            };
+
+            let threshold = match cli.matches.opt_str("t") {
+                Some(opt) => opt.parse::<f32>().with_context(|| {
+                    format!("the value of -t/--threshold is invalid: {}", opt.magenta()).red()
+                }),
+                None => Ok(0.1),
+            }?;
+
+            match difference(
+                &left,
+                &right,
+                &output,
+                threshold,
+                mix_output_with_left,
+                dont_check_layout,
+            ) {
+                Ok(None) => Ok(()),
+                Ok(Some(code)) => std::process::exit(code),
+                Err(e) => Err(e),
+            }
+        }
+        (Some(_left_image), None) => bail!("the argument -r/--right is required".red()),
+        (None, Some(_right_image)) => bail!("the argument -l/--left is required".red()),
+        (None, None) => {
+            cli.print_help();
+            Ok(())
+        }
+    }
 }
 
 fn difference(
@@ -53,13 +96,15 @@ fn difference(
         .red()));
     };
 
-    let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
+    let threshold = constant::MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
     let (width, height) = left_dimensions;
+
     let mut output = if mix_output_with_left {
         left.to_rgba()
     } else {
         RgbaImage::new(width, height)
     };
+
     let mut any_difference = false;
 
     for x in 0..width {
@@ -94,80 +139,4 @@ fn difference(
         return Ok(Some(1));
     }
     Ok(None)
-}
-
-fn main() -> Result<()> {
-    let args: Vec<String> = env::args().collect();
-    let program = args[0].clone();
-    let mut opts = Options::new();
-
-    opts.optflag("h", "help", "print this help menu");
-    opts.optflag("m", "mix-output-left", "mix diff image with left image");
-    opts.optflag("d", "dont-check-layout", "don't check image layout");
-    opts.optopt("l", "left", "file path of left image (base)", "FILE");
-    opts.optopt("r", "right", "file path of right image (comparing)", "FILE");
-
-    opts.optopt(
-        "o",
-        "output",
-        "file path of diff image (output, .png only). default: diff.png",
-        "FILE",
-    );
-
-    opts.optopt(
-        "t",
-        "threshold",
-        "threshold of color difference in range [0, 1]. default: 0.1",
-        "NUM",
-    );
-
-    let matches = match opts.parse(&args[1..]) {
-        Ok(m) => m,
-        Err(f) => bail!(f.to_string()),
-    };
-
-    if matches.opt_present("h") {
-        print_help(&program, opts);
-        return Ok(());
-    }
-
-    let opt_left = matches.opt_str("l");
-    let opt_right = matches.opt_str("r");
-
-    match (opt_left, opt_right) {
-        (Some(left_image_path), Some(right_image_path)) => {
-            let output = matches.opt_str("o").unwrap_or("diff.png".to_string());
-            let threshold = match matches.opt_str("t") {
-                Some(opt_threshold) => opt_threshold.parse::<f32>().with_context(|| {
-                    format!(
-                        "the value of -t/--threshold is invalid: {}",
-                        opt_threshold.magenta()
-                    )
-                    .red()
-                }),
-                None => Ok(0.1),
-            }?;
-            let mix_output_with_left = matches.opt_present("m");
-            let dont_check_layout = matches.opt_present("d");
-
-            match difference(
-                &left_image_path,
-                &right_image_path,
-                &output,
-                threshold,
-                mix_output_with_left,
-                dont_check_layout,
-            ) {
-                Ok(None) => Ok(()),
-                Ok(Some(code)) => std::process::exit(code),
-                Err(e) => Err(e),
-            }
-        }
-        (Some(_left_image), None) => bail!("the argument -r/--right is required".red()),
-        (None, Some(_right_image)) => bail!("the argument -l/--left is required".red()),
-        (None, None) => {
-            print_help(&program, opts);
-            Ok(())
-        }
-    }
 }

@@ -1,0 +1,1 @@
+pub const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
