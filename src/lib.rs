@@ -22,12 +22,12 @@ impl YIQ {
 
     // in the performance critical applications, square root can be omiitted
     pub fn squared_distance(&self, other: &Self) -> f32 {
-        let dy = other.y - self.y;
-        let di = other.i - self.i;
-        let dq = other.q - self.q;
+        let delta_y = other.y - self.y;
+        let delta_i = other.i - self.i;
+        let delta_q = other.q - self.q;
 
-        // compensate for irregularities, introduce coefficients
-        0.5053 * dy.powi(2) + 0.299 * di.powi(2) + 0.1957 * dq.powi(2)
+        // introduce coefficients to compensate for irregularities
+        0.5053 * delta_y.powi(2) + 0.299 * delta_i.powi(2) + 0.1957 * delta_q.powi(2)
     }
 
     // taking the square root of the distance gives better perceptual results
