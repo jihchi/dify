@@ -14,28 +14,42 @@ fn print_help(program: &str, opts: Options) {
 }
 
 fn difference(
-    left_image: &str,
-    right_image: &str,
-    output_image: &str,
+    left_image_path: &str,
+    right_image_path: &str,
+    output_image_path: &str,
     threshold: f32,
 ) -> Result<()> {
-    let left = ImageReader::open(left_image)
-        .with_context(|| format!("failed to open left image: {}", left_image.magenta()).red())?
-        .decode()
-        .with_context(|| format!("failed to decode left image: {}", left_image.magenta()).red())?;
-
-    let right = ImageReader::open(right_image)
-        .with_context(|| format!("failed to open right image: {}", right_image.magenta()).red())?
+    let left = ImageReader::open(left_image_path)
+        .with_context(|| format!("failed to open left image: {}", left_image_path.magenta()).red())?
         .decode()
         .with_context(|| {
-            format!("failed to decode right image: {}", right_image.magenta()).red()
+            format!("failed to decode left image: {}", left_image_path.magenta()).red()
+        })?;
+
+    let right = ImageReader::open(right_image_path)
+        .with_context(|| {
+            format!("failed to open right image: {}", right_image_path.magenta()).red()
+        })?
+        .decode()
+        .with_context(|| {
+            format!(
+                "failed to decode right image: {}",
+                right_image_path.magenta()
+            )
+            .red()
         })?;
 
     match (left.dimensions(), right.dimensions()) {
-        (l_dim, r_dim) if l_dim != r_dim => Err(anyhow!("layout is different".red())),
-        (l_dim, _r_dim) => {
+        (left_dimensions, right_dimensions) if left_dimensions != right_dimensions => {
+            Err(anyhow!(format!(
+                "layout is different, {:?} vs {:?}",
+                left_dimensions, right_dimensions
+            )
+            .red()))
+        }
+        (left_dimensions, _right_dimensions) => {
             let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
-            let (width, height) = l_dim;
+            let (width, height) = left_dimensions;
             let mut output = RgbaImage::new(width, height);
 
             for x in 0..width {
@@ -55,8 +69,7 @@ fn difference(
                 }
             }
 
-            output.save_with_format(output_image, ImageFormat::Png)?;
-
+            output.save_with_format(output_image_path, ImageFormat::Png)?;
             Ok(())
         }
     }
@@ -67,21 +80,23 @@ fn main() -> Result<()> {
     let program = args[0].clone();
     let mut opts = Options::new();
 
+    opts.optflag("h", "help", "print this help menu");
     opts.optopt("l", "left", "file path of left image (base)", "FILE");
     opts.optopt("r", "right", "file path of right image (comparing)", "FILE");
+
     opts.optopt(
         "o",
         "output",
         "file path of diff image (output, .png only). default: diff.png",
         "FILE",
     );
+
     opts.optopt(
         "t",
         "threshold",
         "threshold of color difference in range [0, 1]. default: 0.1",
         "NUM",
     );
-    opts.optflag("h", "help", "print this help menu");
 
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
@@ -93,25 +108,26 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let left = matches.opt_str("l");
-    let right = matches.opt_str("r");
+    let opt_left = matches.opt_str("l");
+    let opt_right = matches.opt_str("r");
 
-    match (left, right) {
-        (Some(l), Some(r)) => {
+    match (opt_left, opt_right) {
+        (Some(left_image_path), Some(right_image_path)) => {
             let output = matches.opt_str("o").unwrap_or("diff.png".to_string());
-            let threshold = matches.opt_str("t").unwrap_or("0.1".to_string());
-            let threshold = threshold.parse::<f32>().with_context(|| {
-                format!(
-                    "the value of -t/--threshold ({}) is invalid",
-                    threshold.magenta(),
-                )
-                .red()
-            })?;
-
-            difference(&l, &r, &output, threshold)
+            let threshold = match matches.opt_str("t") {
+                Some(opt_threshold) => opt_threshold.parse::<f32>().with_context(|| {
+                    format!(
+                        "the value of -t/--threshold is invalid: {}",
+                        opt_threshold.magenta()
+                    )
+                    .red()
+                }),
+                None => Ok(0.1),
+            }?;
+            difference(&left_image_path, &right_image_path, &output, threshold)
         }
-        (Some(_l), None) => bail!("the argument -r/--right is required".red()),
-        (None, Some(_r)) => bail!("the argument -l/--left is required".red()),
+        (Some(_left_image), None) => bail!("the argument -r/--right is required".red()),
+        (None, Some(_right_image)) => bail!("the argument -l/--left is required".red()),
         (None, None) => {
             print_help(&program, opts);
             Ok(())
