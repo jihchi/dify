@@ -1,5 +1,3 @@
-extern crate image;
-
 #[derive(Debug, PartialEq)]
 pub struct YIQ {
     y: f32, // luminance, in range [0, 1]
