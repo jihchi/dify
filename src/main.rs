@@ -19,8 +19,17 @@ fn difference(
     output_image: &str,
     threshold: f32,
 ) -> Result<()> {
-    let left = ImageReader::open(left_image)?.decode()?;
-    let right = ImageReader::open(right_image)?.decode()?;
+    let left = ImageReader::open(left_image)
+        .with_context(|| format!("failed to open left image: {}", left_image.magenta()).red())?
+        .decode()
+        .with_context(|| format!("failed to decode left image: {}", left_image.magenta()).red())?;
+
+    let right = ImageReader::open(right_image)
+        .with_context(|| format!("failed to open right image: {}", right_image.magenta()).red())?
+        .decode()
+        .with_context(|| {
+            format!("failed to decode right image: {}", right_image.magenta()).red()
+        })?;
 
     match (left.dimensions(), right.dimensions()) {
         (l_dim, r_dim) if l_dim != r_dim => Err(anyhow!("layout is different".red())),
