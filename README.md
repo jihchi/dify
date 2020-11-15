@@ -41,6 +41,30 @@ cargo run -- --help
 dify --left base.jpg --right comparing.jpg
 ```
 
+## Benchmarks
+
+```
+$ hyperfine -i 'dify -l water-4k.png -r water-4k-2.png' 'dify -l www.cypress.io.png -r www.cypress.io-1.png'
+
+Benchmark #1: dify -l water-4k.png -r water-4k-2.png
+  Time (mean ± σ):      2.836 s ±  0.014 s    [User: 2.677 s, System: 0.151 s]
+  Range (min … max):    2.820 s …  2.867 s    10 runs
+
+  Warning: Ignoring non-zero exit code.
+
+Benchmark #2: dify -l www.cypress.io.png -r www.cypress.io-1.png
+  Time (mean ± σ):      1.974 s ±  0.083 s    [User: 1.819 s, System: 0.145 s]
+  Range (min … max):    1.907 s …  2.169 s    10 runs
+
+  Warning: Ignoring non-zero exit code.
+
+Summary
+  'dify -l www.cypress.io.png -r www.cypress.io-1.png' ran
+    1.44 ± 0.06 times faster than 'dify -l water-4k.png -r water-4k-2.png'
+```
+
+Ran on MacBook Pro (13-inch, 2019, Two Thunderbolt 3 ports), macOS Catalina 10.15.7.
+
 ## Roadmap
 
 See the [open issues](https://github.com/jihchi/dify/issues) for a list of proposed features (and known issues).
