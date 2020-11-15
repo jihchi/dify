@@ -27,6 +27,10 @@ impl YIQ {
         // introduce coefficients to compensate for irregularities
         0.5053 * delta_y.powi(2) + 0.299 * delta_i.powi(2) + 0.1957 * delta_q.powi(2)
     }
+
+    pub fn square_root_distance(&self, other: &Self) -> f32 {
+        self.squared_distance(other).sqrt()
+    }
 }
 
 #[cfg(test)]
