@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 image = "0.23.11"
+getopts = "0.2"
+anyhow = "1.0"
