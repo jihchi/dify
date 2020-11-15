@@ -1,6 +1,4 @@
-const KY: f32 = 0.5053;
-const KI: f32 = 0.299;
-const KQ: f32 = 0.1957;
+extern crate image;
 
 #[derive(Debug, PartialEq)]
 pub struct YIQ {
@@ -10,7 +8,7 @@ pub struct YIQ {
 }
 
 impl YIQ {
-    pub fn from_rgb(rgb: &[u8; 3]) -> Self {
+    pub fn from_rgb(rgb: &image::Rgb<u8>) -> Self {
         let r = rgb[0] as f32;
         let g = rgb[1] as f32;
         let b = rgb[2] as f32;
@@ -29,7 +27,7 @@ impl YIQ {
         let dq = other.q - self.q;
 
         // compensate for irregularities, introduce coefficients
-        KY * dy.powi(2) + KI * di.powi(2) + KQ * dq.powi(2)
+        0.5053 * dy.powi(2) + 0.299 * di.powi(2) + 0.1957 * dq.powi(2)
     }
 
     // taking the square root of the distance gives better perceptual results
@@ -49,7 +47,7 @@ mod tests {
             i: 0.0,
             q: 0.0,
         };
-        let actual = YIQ::from_rgb(&[0, 0, 0]);
+        let actual = YIQ::from_rgb(&image::Rgb([0, 0, 0]));
         assert_eq!(expected, actual);
     }
 
