@@ -12,10 +12,6 @@
   <h3 align="center">Dify</h3>
   <p align="center">
     A pixel-by-pixel image visual difference tool
-    <br />
-    <a href="https://github.com/jihchi/dify"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
   </p>
 </p>
 
