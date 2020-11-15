@@ -1,7 +1,6 @@
 extern crate image;
 
-use crate::image::io::Reader as ImageReader;
-use crate::image::GenericImageView;
+use crate::image::{io::Reader as ImageReader, GenericImageView};
 use std::error::Error;
 
 use dify;
