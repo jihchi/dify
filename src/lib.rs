@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct YIQ {
     pub y: f32,
     pub i: f32,
@@ -22,5 +22,93 @@ impl YIQ {
         let q = matrix[2][0] * r + matrix[2][1] * g + matrix[2][2] * b;
 
         Self { y, i, q }
+    }
+
+    pub fn squared_distance(&self, other: &Self) -> f32 {
+        let dy = other.y - self.y;
+        let di = other.i - self.i;
+        let dq = other.q - self.q;
+
+        dy.powi(2) + di.powi(2) + dq.powi(2)
+    }
+
+    pub fn square_root_distance(&self, other: &Self) -> f32 {
+        self.squared_distance(other).sqrt()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::YIQ;
+
+    #[test]
+    fn test_from_rgb() {
+        let expected = YIQ {
+            y: 0.0,
+            i: 0.0,
+            q: 0.0,
+        };
+        let actual = YIQ::from_rgb(&[0, 0, 0]);
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_squared_distance_same() {
+        let a = YIQ {
+            y: 0.5,
+            i: -0.1,
+            q: 0.1,
+        };
+        let b = YIQ {
+            y: 0.5,
+            i: -0.1,
+            q: 0.1,
+        };
+        assert_eq!(a.squared_distance(&b), 0.0);
+    }
+
+    #[test]
+    fn test_squared_distance_not_same() {
+        let a = YIQ {
+            y: 0.5,
+            i: 0.1,
+            q: -0.1,
+        };
+        let b = YIQ {
+            y: 0.5,
+            i: -0.1,
+            q: 0.1,
+        };
+        assert_eq!(a.squared_distance(&b), 0.080000006);
+    }
+
+    #[test]
+    fn test_square_root_distance_same() {
+        let a = YIQ {
+            y: 0.5,
+            i: -0.1,
+            q: 0.1,
+        };
+        let b = YIQ {
+            y: 0.5,
+            i: -0.1,
+            q: 0.1,
+        };
+        assert_eq!(a.square_root_distance(&b), 0.0);
+    }
+
+    #[test]
+    fn test_square_root_distance_not_same() {
+        let a = YIQ {
+            y: 0.5,
+            i: 0.1,
+            q: -0.1,
+        };
+        let b = YIQ {
+            y: 0.5,
+            i: -0.1,
+            q: 0.1,
+        };
+        assert_eq!(a.square_root_distance(&b), 0.28284273);
     }
 }
