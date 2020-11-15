@@ -19,6 +19,7 @@ fn difference(
     output_image_path: &str,
     threshold: f32,
     mix_output_with_left: bool,
+    dont_check_layout: bool,
 ) -> Result<Option<i32>> {
     let left = ImageReader::open(left_image_path)
         .with_context(|| format!("failed to open left image: {}", left_image_path.magenta()).red())?
@@ -43,10 +44,11 @@ fn difference(
     let left_dimensions = left.dimensions();
     let right_dimensions = right.dimensions();
 
-    if left_dimensions != right_dimensions {
+    if !dont_check_layout && left_dimensions != right_dimensions {
         return Err(anyhow!(format!(
-            "layout is different, {:?} vs {:?}",
-            left_dimensions, right_dimensions
+            "layout is different, {} vs {}",
+            format!("{:?}", left_dimensions).magenta(),
+            format!("{:?}", right_dimensions).magenta(),
         )
         .red()));
     };
@@ -62,28 +64,36 @@ fn difference(
 
     for x in 0..width {
         for y in 0..height {
-            let pixel = (left.get_pixel(x, y), right.get_pixel(x, y));
+            let is_pixel_difference;
 
-            if pixel.0 == pixel.1 {
-                continue;
+            if right.in_bounds(x, y) {
+                let pixel = (left.get_pixel(x, y), right.get_pixel(x, y));
+
+                if pixel.0 == pixel.1 {
+                    continue;
+                }
+
+                let rgb = (pixel.0.to_rgb(), pixel.1.to_rgb());
+                let yiq = (YIQ::from_rgb(&rgb.0), YIQ::from_rgb(&rgb.1));
+                let delta = yiq.0.squared_distance(&yiq.1);
+
+                is_pixel_difference = delta > threshold;
+            } else {
+                is_pixel_difference = true;
             }
 
-            let rgb = (pixel.0.to_rgb(), pixel.1.to_rgb());
-            let yiq = (YIQ::from_rgb(&rgb.0), YIQ::from_rgb(&rgb.1));
-            let delta = yiq.0.squared_distance(&yiq.1);
-
-            if delta > threshold {
+            if is_pixel_difference {
                 any_difference = true;
                 output.put_pixel(x, y, Rgba([255, 0, 0, 255]));
             }
         }
     }
 
-    if !any_difference {
-        return Ok(None);
+    if any_difference {
+        output.save_with_format(output_image_path, ImageFormat::Png)?;
+        return Ok(Some(1));
     }
-    output.save_with_format(output_image_path, ImageFormat::Png)?;
-    Ok(Some(1))
+    Ok(None)
 }
 
 fn main() -> Result<()> {
@@ -93,6 +103,7 @@ fn main() -> Result<()> {
 
     opts.optflag("h", "help", "print this help menu");
     opts.optflag("m", "mix-output-left", "mix diff image with left image");
+    opts.optflag("d", "dont-check-layout", "don't check image layout");
     opts.optopt("l", "left", "file path of left image (base)", "FILE");
     opts.optopt("r", "right", "file path of right image (comparing)", "FILE");
 
@@ -137,6 +148,7 @@ fn main() -> Result<()> {
                 None => Ok(0.1),
             }?;
             let mix_output_with_left = matches.opt_present("m");
+            let dont_check_layout = matches.opt_present("d");
 
             match difference(
                 &left_image_path,
@@ -144,6 +156,7 @@ fn main() -> Result<()> {
                 &output,
                 threshold,
                 mix_output_with_left,
+                dont_check_layout,
             ) {
                 Ok(None) => Ok(()),
                 Ok(Some(code)) => std::process::exit(code),
