@@ -1,12 +1,13 @@
-use anyhow::{bail, Context, Result};
-use colored::*;
-
 mod cli;
 mod diff;
-mod yiq;
+mod yiq; // used by src/diff.rs
+
+use anyhow::{bail, Context, Result};
+use cli::Cli;
+use colored::*;
 
 fn main() -> Result<()> {
-    let cli = cli::Cli::new()?;
+    let cli = Cli::new()?;
 
     if cli.matches.opt_present("h") {
         cli.print_help();
