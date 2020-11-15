@@ -18,6 +18,7 @@ fn difference(
     right_image_path: &str,
     output_image_path: &str,
     threshold: f32,
+    mix_output_with_left: bool,
 ) -> Result<Option<i32>> {
     let left = ImageReader::open(left_image_path)
         .with_context(|| format!("failed to open left image: {}", left_image_path.magenta()).red())?
@@ -52,7 +53,11 @@ fn difference(
 
     let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
     let (width, height) = left_dimensions;
-    let mut output = RgbaImage::new(width, height);
+    let mut output = if mix_output_with_left {
+        left.to_rgba()
+    } else {
+        RgbaImage::new(width, height)
+    };
     let mut any_difference = false;
 
     for x in 0..width {
@@ -87,6 +92,7 @@ fn main() -> Result<()> {
     let mut opts = Options::new();
 
     opts.optflag("h", "help", "print this help menu");
+    opts.optflag("m", "mix-output-left", "mix diff image with left image");
     opts.optopt("l", "left", "file path of left image (base)", "FILE");
     opts.optopt("r", "right", "file path of right image (comparing)", "FILE");
 
@@ -130,8 +136,15 @@ fn main() -> Result<()> {
                 }),
                 None => Ok(0.1),
             }?;
+            let mix_output_with_left = matches.opt_present("m");
 
-            match difference(&left_image_path, &right_image_path, &output, threshold) {
+            match difference(
+                &left_image_path,
+                &right_image_path,
+                &output,
+                threshold,
+                mix_output_with_left,
+            ) {
                 Ok(None) => Ok(()),
                 Ok(Some(code)) => std::process::exit(code),
                 Err(e) => Err(e),
