@@ -4,7 +4,7 @@ use getopts::Options;
 use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Pixel, Rgba, RgbaImage};
 use std::env;
 
-use dify;
+use dify::YIQ;
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 
@@ -18,7 +18,7 @@ fn difference(
     right_image_path: &str,
     output_image_path: &str,
     threshold: f32,
-) -> Result<()> {
+) -> Result<Option<i32>> {
     let left = ImageReader::open(left_image_path)
         .with_context(|| format!("failed to open left image: {}", left_image_path.magenta()).red())?
         .decode()
@@ -43,36 +43,37 @@ fn difference(
     let right_dimensions = right.dimensions();
 
     if left_dimensions != right_dimensions {
-        Err(anyhow!(format!(
+        return Err(anyhow!(format!(
             "layout is different, {:?} vs {:?}",
             left_dimensions, right_dimensions
         )
-        .red()))
+        .red()));
     };
 
     let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
     let (width, height) = left_dimensions;
     let mut output = RgbaImage::new(width, height);
+    let mut any_difference = false;
 
     for x in 0..width {
         for y in 0..height {
-            let l_pixel = left.get_pixel(x, y);
-            let r_pixel = right.get_pixel(x, y);
-            let l_rgb = l_pixel.to_rgb();
-            let r_rgb = r_pixel.to_rgb();
-            let l_yiq = dify::YIQ::from_rgb(&l_rgb);
-            let r_yiq = dify::YIQ::from_rgb(&r_rgb);
-
-            let delta = l_yiq.squared_distance(&r_yiq);
+            let pixel = (left.get_pixel(x, y), right.get_pixel(x, y));
+            let rgb = (pixel.0.to_rgb(), pixel.1.to_rgb());
+            let yiq = (YIQ::from_rgb(&rgb.0), YIQ::from_rgb(&rgb.1));
+            let delta = yiq.0.squared_distance(&yiq.1);
 
             if delta > threshold {
+                any_difference = true;
                 output.put_pixel(x, y, Rgba([255, 0, 0, 255]));
             }
         }
     }
 
+    if !any_difference {
+        return Ok(None);
+    }
     output.save_with_format(output_image_path, ImageFormat::Png)?;
-    Ok(())
+    Ok(Some(1))
 }
 
 fn main() -> Result<()> {
@@ -124,7 +125,12 @@ fn main() -> Result<()> {
                 }),
                 None => Ok(0.1),
             }?;
-            difference(&left_image_path, &right_image_path, &output, threshold)
+
+            match difference(&left_image_path, &right_image_path, &output, threshold) {
+                Ok(None) => Ok(()),
+                Ok(Some(code)) => std::process::exit(code),
+                Err(e) => Err(e),
+            }
         }
         (Some(_left_image), None) => bail!("the argument -r/--right is required".red()),
         (None, Some(_right_image)) => bail!("the argument -l/--left is required".red()),
