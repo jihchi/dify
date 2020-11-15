@@ -39,40 +39,40 @@ fn difference(
             .red()
         })?;
 
-    match (left.dimensions(), right.dimensions()) {
-        (left_dimensions, right_dimensions) if left_dimensions != right_dimensions => {
-            Err(anyhow!(format!(
-                "layout is different, {:?} vs {:?}",
-                left_dimensions, right_dimensions
-            )
-            .red()))
-        }
-        (left_dimensions, _right_dimensions) => {
-            let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
-            let (width, height) = left_dimensions;
-            let mut output = RgbaImage::new(width, height);
+    let left_dimensions = left.dimensions();
+    let right_dimensions = right.dimensions();
 
-            for x in 0..width {
-                for y in 0..height {
-                    let l_pixel = left.get_pixel(x, y);
-                    let r_pixel = right.get_pixel(x, y);
-                    let l_rgb = l_pixel.to_rgb();
-                    let r_rgb = r_pixel.to_rgb();
-                    let l_yiq = dify::YIQ::from_rgb(&l_rgb);
-                    let r_yiq = dify::YIQ::from_rgb(&r_rgb);
+    if left_dimensions != right_dimensions {
+        Err(anyhow!(format!(
+            "layout is different, {:?} vs {:?}",
+            left_dimensions, right_dimensions
+        )
+        .red()))
+    };
 
-                    let delta = l_yiq.squared_distance(&r_yiq);
+    let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
+    let (width, height) = left_dimensions;
+    let mut output = RgbaImage::new(width, height);
 
-                    if delta > threshold {
-                        output.put_pixel(x, y, Rgba([255, 0, 0, 255]));
-                    }
-                }
+    for x in 0..width {
+        for y in 0..height {
+            let l_pixel = left.get_pixel(x, y);
+            let r_pixel = right.get_pixel(x, y);
+            let l_rgb = l_pixel.to_rgb();
+            let r_rgb = r_pixel.to_rgb();
+            let l_yiq = dify::YIQ::from_rgb(&l_rgb);
+            let r_yiq = dify::YIQ::from_rgb(&r_rgb);
+
+            let delta = l_yiq.squared_distance(&r_yiq);
+
+            if delta > threshold {
+                output.put_pixel(x, y, Rgba([255, 0, 0, 255]));
             }
-
-            output.save_with_format(output_image_path, ImageFormat::Png)?;
-            Ok(())
         }
     }
+
+    output.save_with_format(output_image_path, ImageFormat::Png)?;
+    Ok(())
 }
 
 fn main() -> Result<()> {
