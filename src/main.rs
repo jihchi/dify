@@ -9,7 +9,7 @@ use dify;
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 
 fn print_help(program: &str, opts: Options) {
-    let brief = format!("Usage: {}", program);
+    let brief = format!("Usage: {} [options]", program);
     print!("{}", opts.usage(&brief));
 }
 
@@ -58,19 +58,19 @@ fn main() -> Result<()> {
     let program = args[0].clone();
     let mut opts = Options::new();
 
-    opts.optopt("l", "left", "the file path of left image", "LEFT");
-    opts.optopt("r", "right", "the file path of right image", "RIGHT");
+    opts.optopt("l", "left", "file path of left image (base)", "FILE");
+    opts.optopt("r", "right", "file path of right image (comparing)", "FILE");
     opts.optopt(
         "o",
         "output",
-        "the file path of diff output (.png only). default: diff.png",
-        "OUTPUT",
+        "file path of diff image (output, .png only). default: diff.png",
+        "FILE",
     );
     opts.optopt(
         "t",
         "threshold",
-        "the threshold of color difference in range [0, 1]. default: 0.1",
-        "THRESHOLD",
+        "threshold of color difference in range [0, 1]. default: 0.1",
+        "NUM",
     );
     opts.optflag("h", "help", "print this help menu");
 
