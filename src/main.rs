@@ -13,6 +13,11 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
+    if cli.matches.opt_present("v") {
+        cli.print_version();
+        return Ok(());
+    }
+
     let left_image_path = cli.matches.opt_str("l");
     let right_image_path = cli.matches.opt_str("r");
 

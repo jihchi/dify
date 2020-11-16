@@ -2,6 +2,8 @@ use anyhow::{bail, Result};
 use getopts::{Matches, Options};
 use std::env;
 
+const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
+
 pub struct Cli {
     program: String,
     pub matches: Matches,
@@ -17,6 +19,7 @@ impl Cli {
         options.optflag("h", "help", "print this help menu");
         options.optflag("m", "mix-output-left", "mix diff image with left image");
         options.optflag("d", "dont-check-layout", "don't check image layout");
+        options.optflag("v", "version", "print the version");
         options.optopt("l", "left", "file path of left image (base)", "FILE");
         options.optopt("r", "right", "file path of right image (comparing)", "FILE");
 
@@ -44,8 +47,12 @@ impl Cli {
         }
     }
 
-    pub fn print_help(self) {
+    pub fn print_help(&self) {
         let brief = format!("Usage: {} [options]", self.program);
         print!("{}", self.options.usage(&brief));
+    }
+
+    pub fn print_version(&self) {
+        println!("{}", VERSION.unwrap_or(""));
     }
 }
