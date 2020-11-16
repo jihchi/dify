@@ -86,8 +86,7 @@ jobs:
 
       - name: Setup | Checksums
         run: |
-          find .
-          for file in dity-*/dity-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
+          for file in dify-*/dify-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
 
       - name: Setup | Release notes
         run: |
@@ -97,7 +96,7 @@ jobs:
       - name: Build | Publish
         uses: softprops/action-gh-release@v1
         with:
-          files: dity-*/dity-*
+          files: dify-*/dify-*
           body_path: RELEASE.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
