@@ -1,6 +1,6 @@
 [package]
 name = "dify"
-version = "0.2.0-alpha.6"
+version = "0.2.0-alpha.7"
 authors = ["jihchi <achi@987.tw>"]
 edition = "2018"
 publish = false
