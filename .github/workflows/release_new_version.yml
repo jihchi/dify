@@ -30,6 +30,14 @@ jobs:
       - name: Setup | Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup | Cache Cargo
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Setup | Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -52,9 +60,10 @@ jobs:
       - name: Post Setup | Prepare artifacts [-nix]
         if: matrix.os != 'windows-latest'
         run: |
+          find .
           cd target/${{ matrix.target }}/release
           strip dify
-          tar czvf ../../../$
+          tar czvf ../../../${{ matrix.name }} dify
           cd -
 
       - name: Post Setup | Upload artifacts
