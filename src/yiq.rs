@@ -12,9 +12,9 @@ impl YIQ {
         let g = rgb[1] as f32;
         let b = rgb[2] as f32;
 
-        let y = 0.29_889_531 * r + 0.58_662_247 * g + 0.11_448_223 * b;
-        let i = 0.59_597_799 * r + -0.27_417_160 * g + -0.32_180_189 * b;
-        let q = 0.21_147_019 * r + -0.52_261_711 * g + 0.31_114_694 * b;
+        let y = 0.298_895_31 * r + 0.586_622_47 * g + 0.114_482_23 * b;
+        let i = 0.595_977_99 * r + -0.274_171_60 * g + -0.321_801_89 * b;
+        let q = 0.211_470_19 * r + -0.522_617_11 * g + 0.311_146_94 * b;
 
         Self { y, i, q }
     }
@@ -26,7 +26,7 @@ impl YIQ {
         let delta_q = other.q - self.q;
 
         // introduce coefficients to compensate for irregularities
-        0.5053 * delta_y.powi(2) + 0.299 * delta_i.powi(2) + 0.1957 * delta_q.powi(2)
+        0.5053 * delta_y.powi(2) + 0.299 * delta_i.powi(2) + 0.195_7 * delta_q.powi(2)
     }
 
     pub fn square_root_distance(&self, other: &Self) -> f32 {
@@ -106,6 +106,6 @@ mod tests {
             i: -0.1,
             q: 0.1,
         };
-        assert_eq!(a.square_root_distance(&b), 0.14_066_982);
+        assert_eq!(a.square_root_distance(&b), 0.140_669_82);
     }
 }
