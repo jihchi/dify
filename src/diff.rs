@@ -1,47 +1,37 @@
 use anyhow::{anyhow, Context, Result};
 use colored::*;
+use dify::yiq::YIQ;
 use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Pixel, Rgba, RgbaImage};
 
-use dify::yiq::YIQ;
-
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
+const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
 
-pub fn difference(
-    left_image_path: &str,
-    right_image_path: &str,
-    output_image_path: &str,
+pub fn run(
+    left: &str,
+    right: &str,
+    output_path: &str,
     threshold: f32,
-    mix_output_with_left: bool,
-    dont_check_layout: bool,
+    diff_based_on_left: bool,
+    do_not_check_dimensions: bool,
 ) -> Result<Option<i32>> {
-    let left = ImageReader::open(left_image_path)
-        .with_context(|| format!("failed to open left image: {}", left_image_path.magenta()).red())?
+    let left = ImageReader::open(left)
+        .with_context(|| format!("failed to open left image \"{}\"", left.magenta()).red())?
         .decode()
-        .with_context(|| {
-            format!("failed to decode left image: {}", left_image_path.magenta()).red()
-        })?;
+        .with_context(|| format!("failed to decode left image \"{}\"", left.magenta()).red())?;
 
-    let right = ImageReader::open(right_image_path)
-        .with_context(|| {
-            format!("failed to open right image: {}", right_image_path.magenta()).red()
-        })?
+    let right = ImageReader::open(right)
+        .with_context(|| format!("failed to open right image \"{}\"", right.magenta()).red())?
         .decode()
-        .with_context(|| {
-            format!(
-                "failed to decode right image: {}",
-                right_image_path.magenta()
-            )
-            .red()
-        })?;
+        .with_context(|| format!("failed to decode right image \"{}\"", right.magenta()).red())?;
 
     let left_dimensions = left.dimensions();
     let right_dimensions = right.dimensions();
 
-    if !dont_check_layout && left_dimensions != right_dimensions {
+    if !do_not_check_dimensions && left_dimensions != right_dimensions {
         return Err(anyhow!(format!(
-            "layout is different, {} vs {}",
-            format!("{:?}", left_dimensions).magenta(),
-            format!("{:?}", right_dimensions).magenta(),
+            "dimensions of the left and right image are different, left: {}, right: {}",
+            format!("{}x{}", left_dimensions.0, left_dimensions.1).magenta(),
+            format!("{}x{}", right_dimensions.0, right_dimensions.1).magenta(),
         )
         .red()));
     };
@@ -49,7 +39,7 @@ pub fn difference(
     let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
     let (width, height) = left_dimensions;
 
-    let mut output = if mix_output_with_left {
+    let mut output = if diff_based_on_left {
         left.to_rgba()
     } else {
         RgbaImage::new(width, height)
@@ -59,7 +49,7 @@ pub fn difference(
 
     for x in 0..width {
         for y in 0..height {
-            let is_pixel_difference;
+            let is_difference;
 
             if right.in_bounds(x, y) {
                 let pixel = (left.get_pixel(x, y), right.get_pixel(x, y));
@@ -72,21 +62,27 @@ pub fn difference(
                 let yiq = (YIQ::from_rgb(&rgb.0), YIQ::from_rgb(&rgb.1));
                 let delta = yiq.0.squared_distance(&yiq.1);
 
-                is_pixel_difference = delta > threshold;
+                is_difference = delta > threshold;
             } else {
-                is_pixel_difference = true;
+                is_difference = true;
             }
 
-            if is_pixel_difference {
+            if is_difference {
                 any_difference = true;
-                output.put_pixel(x, y, Rgba([255, 0, 0, 255]));
+                output.put_pixel(x, y, RED_PIXEL);
             }
         }
     }
 
     if any_difference {
-        output.save_with_format(output_image_path, ImageFormat::Png)?;
+        output
+            .save_with_format(output_path, ImageFormat::Png)
+            .with_context(|| {
+                format!("failed to write diff image \"{}\"", output_path.magenta()).red()
+            })?;
+
         return Ok(Some(1));
     }
+
     Ok(None)
 }

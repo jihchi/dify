@@ -1,12 +1,21 @@
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
+use colored::*;
 use getopts::{Matches, Options};
 use std::env;
 
 const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
+const SHORT_NAME_HELP: &str = "h";
+const SHORT_NAME_VERSION: &str = "v";
+const SHORT_NAME_DONT_CHECK_DIMENSIONS: &str = "d";
+const SHORT_NAME_DIFF_BASED_ON_LEFT: &str = "b";
+const SHORT_NAME_LEFT_IMAGE_PATH: &str = "l";
+const SHORT_NAME_RIGHT_IMAGE_PATH: &str = "r";
+const SHORT_NAME_OUTPUT_IMAGE_PATH: &str = "o";
+const SHORT_NAME_THRESHOLD: &str = "t";
 
 pub struct Cli {
     program: String,
-    pub matches: Matches,
+    matches: Matches,
     options: Options,
 }
 
@@ -16,24 +25,46 @@ impl Cli {
 
         let mut options = Options::new();
 
-        options.optflag("h", "help", "print this help menu");
-        options.optflag("m", "mix-output-left", "mix diff image with left image");
-        options.optflag("d", "dont-check-layout", "don't check image layout");
-        options.optflag("v", "version", "print the version");
-        options.optopt("l", "left", "file path of left image (base)", "FILE");
-        options.optopt("r", "right", "file path of right image (comparing)", "FILE");
+        options.optflag(SHORT_NAME_HELP, "help", "print this help menu");
+        options.optflag(SHORT_NAME_VERSION, "version", "print the version");
+
+        options.optflag(
+            SHORT_NAME_DONT_CHECK_DIMENSIONS,
+            "dont-check-dimensions",
+            "don't check image dimensions",
+        );
+
+        options.optflag(
+            SHORT_NAME_DIFF_BASED_ON_LEFT,
+            "diff-based-on-left",
+            "draw the diff based on the left image",
+        );
 
         options.optopt(
-            "o",
-            "output",
-            "file path of diff image (output, .png only). default: diff.png",
+            SHORT_NAME_LEFT_IMAGE_PATH,
+            "left",
+            "the file path of the left image (original)",
             "FILE",
         );
 
         options.optopt(
-            "t",
+            SHORT_NAME_RIGHT_IMAGE_PATH,
+            "right",
+            "the file path of the right image (comparing)",
+            "FILE",
+        );
+
+        options.optopt(
+            SHORT_NAME_OUTPUT_IMAGE_PATH,
+            "output",
+            "the file path of diff image (output, .png only). default: diff.png",
+            "FILE",
+        );
+
+        options.optopt(
+            SHORT_NAME_THRESHOLD,
             "threshold",
-            "threshold of color difference in range [0, 1]. default: 0.1",
+            "matching threshold, ranges from 0 to 1, less more percise. default: 0.1",
             "NUM",
         );
 
@@ -54,5 +85,45 @@ impl Cli {
 
     pub fn print_version(&self) {
         println!("{}", VERSION.unwrap_or(""));
+    }
+
+    pub fn show_help(&self) -> bool {
+        self.matches.opt_present(SHORT_NAME_HELP)
+    }
+
+    pub fn show_version(&self) -> bool {
+        self.matches.opt_present(SHORT_NAME_VERSION)
+    }
+
+    pub fn diff_based_on_left(&self) -> bool {
+        self.matches.opt_present(SHORT_NAME_DIFF_BASED_ON_LEFT)
+    }
+
+    pub fn do_not_check_dimensions(&self) -> bool {
+        self.matches.opt_present(SHORT_NAME_DONT_CHECK_DIMENSIONS)
+    }
+
+    pub fn get_left_image_path(&self) -> Option<String> {
+        self.matches.opt_str(SHORT_NAME_LEFT_IMAGE_PATH)
+    }
+
+    pub fn get_right_image_path(&self) -> Option<String> {
+        self.matches.opt_str(SHORT_NAME_RIGHT_IMAGE_PATH)
+    }
+
+    pub fn get_output_image_path(&self) -> String {
+        self.matches
+            .opt_str(SHORT_NAME_OUTPUT_IMAGE_PATH)
+            .unwrap_or("diff.png".into())
+    }
+
+    pub fn get_threshold(&self) -> Result<f32> {
+        self.matches
+            .opt_str(SHORT_NAME_THRESHOLD)
+            .map_or(Ok(0.1), |opt| {
+                opt.parse::<f32>().with_context(|| {
+                    format!("the value of -t/--threshold is invalid: {}", opt.magenta()).red()
+                })
+            })
     }
 }

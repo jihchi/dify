@@ -1,58 +1,51 @@
 mod cli;
 mod diff;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, Result};
 use cli::Cli;
 use colored::*;
 
 fn main() -> Result<()> {
     let cli = Cli::new()?;
 
-    if cli.matches.opt_present("h") {
+    if cli.show_help() {
         cli.print_help();
         return Ok(());
     }
 
-    if cli.matches.opt_present("v") {
+    if cli.show_version() {
         cli.print_version();
         return Ok(());
     }
 
-    let left_image_path = cli.matches.opt_str("l");
-    let right_image_path = cli.matches.opt_str("r");
-
-    match (left_image_path, right_image_path) {
+    match (cli.get_left_image_path(), cli.get_right_image_path()) {
         (Some(left), Some(right)) => {
-            let mix_output_with_left = cli.matches.opt_present("m");
-            let dont_check_layout = cli.matches.opt_present("d");
+            let diff_based_on_left = cli.diff_based_on_left();
+            let do_not_check_dimensions = cli.do_not_check_dimensions();
+            let output = cli.get_output_image_path();
+            let threshold = cli.get_threshold()?;
 
-            let output = match cli.matches.opt_str("o") {
-                Some(s) => s,
-                None => "diff.png".to_string(),
-            };
-
-            let threshold = match cli.matches.opt_str("t") {
-                Some(opt) => opt.parse::<f32>().with_context(|| {
-                    format!("the value of -t/--threshold is invalid: {}", opt.magenta()).red()
-                }),
-                None => Ok(0.1),
-            }?;
-
-            match diff::difference(
+            diff::run(
                 &left,
                 &right,
                 &output,
                 threshold,
-                mix_output_with_left,
-                dont_check_layout,
-            ) {
-                Ok(None) => Ok(()),
-                Ok(Some(code)) => std::process::exit(code),
-                Err(e) => Err(e),
-            }
+                diff_based_on_left,
+                do_not_check_dimensions,
+            )
+            .map(|code| {
+                if let Some(code) = code {
+                    std::process::exit(code)
+                }
+                ()
+            })
         }
-        (Some(_left_image), None) => bail!("the argument -r/--right is required".red()),
-        (None, Some(_right_image)) => bail!("the argument -l/--left is required".red()),
+        (Some(_left), None) => {
+            bail!(format!("the argument {} is missing", "-r/--right FILE".magenta()).red())
+        }
+        (None, Some(_right)) => {
+            bail!(format!("the argument {} is missing", "-l/--left FILE".magenta()).red())
+        }
         (None, None) => {
             cli.print_help();
             Ok(())
