@@ -6,6 +6,7 @@ pub struct YIQ {
 }
 
 impl YIQ {
+    #[allow(clippy::many_single_char_names)]
     pub fn from_rgb(rgb: &image::Rgb<u8>) -> Self {
         let r = rgb[0] as f32;
         let g = rgb[1] as f32;
