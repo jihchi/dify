@@ -88,15 +88,9 @@ jobs:
         run: |
           for file in dify-*/dify-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
 
-      - name: Setup | Release notes
-        run: |
-          go get -u github.com/git-chglog/git-chglog/cmd/git-chglog
-          git-chglog -c .github/chglog/release.yml $(git describe --tags) > RELEASE.md
-
       - name: Build | Publish
         uses: softprops/action-gh-release@v1
         with:
           files: dify-*/dify-*
-          body_path: RELEASE.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
