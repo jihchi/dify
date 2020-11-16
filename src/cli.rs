@@ -37,7 +37,7 @@ impl Cli {
         options.optflag(
             SHORT_NAME_DIFF_BASED_ON_LEFT,
             "diff-based-on-left",
-            "draw the diff based on the left image",
+            "draw the diff image based on the left image",
         );
 
         options.optopt(
@@ -57,14 +57,14 @@ impl Cli {
         options.optopt(
             SHORT_NAME_OUTPUT_IMAGE_PATH,
             "output",
-            "the file path of diff image (output, .png only). default: diff.png",
+            "the file path of diff image (output), output PNG only. default: diff.png",
             "FILE",
         );
 
         options.optopt(
             SHORT_NAME_THRESHOLD,
             "threshold",
-            "matching threshold, ranges from 0 to 1, less more percise. default: 0.1",
+            "matching threshold, ranges from 0 to 1, less more precise. default: 0.1",
             "NUM",
         );
 
@@ -122,7 +122,11 @@ impl Cli {
             .opt_str(SHORT_NAME_THRESHOLD)
             .map_or(Ok(0.1), |opt| {
                 opt.parse::<f32>().with_context(|| {
-                    format!("the value of -t/--threshold is invalid: {}", opt.magenta()).red()
+                    format!(
+                        "the value of {} is invalid",
+                        format!("-t/--threshold {}", opt).magenta()
+                    )
+                    .red()
                 })
             })
     }
