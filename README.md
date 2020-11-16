@@ -28,17 +28,9 @@
 
 ### Installation
 
-1. Clone the repo
+#### From binaries
 
-```sh
-git clone https://github.com/jihchi/dify.git
-```
-
-2. Print the help
-
-```sh
-cargo run -- --help
-```
+Download the binaries for your platform from [release](https://github.com/jihchi/dify/releases) page.
 
 ## Usage
 
