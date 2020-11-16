@@ -12,9 +12,9 @@ impl YIQ {
         let g = rgb[1] as f32;
         let b = rgb[2] as f32;
 
-        let y = 0.29889531 * r + 0.58662247 * g + 0.11448223 * b;
-        let i = 0.59597799 * r + -0.27417160 * g + -0.32180189 * b;
-        let q = 0.21147019 * r + -0.52261711 * g + 0.31114694 * b;
+        let y = 0.29_889_531 * r + 0.58_662_247 * g + 0.11_448_223 * b;
+        let i = 0.59_597_799 * r + -0.27_417_160 * g + -0.32_180_189 * b;
+        let q = 0.21_147_019 * r + -0.52_261_711 * g + 0.31_114_694 * b;
 
         Self { y, i, q }
     }
@@ -76,7 +76,7 @@ mod tests {
             i: -0.1,
             q: 0.1,
         };
-        assert_eq!(a.squared_distance(&b), 0.019788);
+        assert_eq!(a.squared_distance(&b), 0.019_788);
     }
 
     #[test]
@@ -106,6 +106,6 @@ mod tests {
             i: -0.1,
             q: 0.1,
         };
-        assert_eq!(a.square_root_distance(&b), 0.14066982);
+        assert_eq!(a.square_root_distance(&b), 0.14_066_982);
     }
 }
