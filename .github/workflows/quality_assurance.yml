@@ -1,6 +1,6 @@
-on: [push, pull_request]
+name: Quality Assurance
 
-name: Basic
+on: [push, pull_request]
 
 jobs:
   check:
