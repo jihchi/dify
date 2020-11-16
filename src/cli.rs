@@ -114,7 +114,7 @@ impl Cli {
     pub fn get_output_image_path(&self) -> String {
         self.matches
             .opt_str(SHORT_NAME_OUTPUT_IMAGE_PATH)
-            .unwrap_or("diff.png".into())
+            .unwrap_or_else(|| "diff.png".into())
     }
 
     pub fn get_threshold(&self) -> Result<f32> {
