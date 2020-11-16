@@ -37,7 +37,6 @@ fn main() -> Result<()> {
                 if let Some(code) = code {
                     std::process::exit(code)
                 }
-                ()
             })
         }
         (Some(_left), None) => {
