@@ -11,7 +11,7 @@
   </a>
   <h3 align="center">Dify</h3>
   <p align="center">
-    A pixel-by-pixel image visual difference tool
+    Am image visual difference tool
   </p>
 </p>
 
