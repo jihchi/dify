@@ -1,6 +1,5 @@
 mod cli;
 mod diff;
-mod yiq; // used by src/diff.rs
 
 use anyhow::{bail, Context, Result};
 use cli::Cli;

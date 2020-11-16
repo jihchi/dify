@@ -2,7 +2,7 @@ use anyhow::{anyhow, Context, Result};
 use colored::*;
 use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Pixel, Rgba, RgbaImage};
 
-use crate::yiq::YIQ;
+use dify::yiq::YIQ;
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 
