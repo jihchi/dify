@@ -60,7 +60,6 @@ jobs:
       - name: Post Setup | Prepare artifacts [-nix]
         if: matrix.os != 'windows-latest'
         run: |
-          find .
           cd target/${{ matrix.target }}/release
           strip dify
           tar czvf ../../../${{ matrix.name }} dify
