@@ -1,9 +1,9 @@
+name: Release New Version
+
 on:
   push:
     tags:
       - 'v*'
-
-name: Release New Version
 
 jobs:
   build:
@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arget:
+        target:
           - x86_64-unknown-linux-gnu
           - x86_64-unknown-linux-musl
           - x86_64-apple-darwin
