@@ -3,6 +3,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
+[![Workflows - CI][workflows-CI-shield]][workflows-CI-url]
 
 <p align="center">
   <a href="https://github.com/jihchi/dify"><img src="logo.png" alt="Dify Logo" ></a>
@@ -80,13 +81,15 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 - This project is inspired by [dmtrKovalenko/odiff](https://github.com/dmtrKovalenko/odiff)
 
-[contributors-shield]: https://img.shields.io/github/contributors/jihchi/dify.svg?style=flat-square
+[contributors-shield]: https://img.shields.io/github/contributors/jihchi/dify.svg
 [contributors-url]: https://github.com/jihchi/dify/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/jihchi/dify.svg?style=flat-square
+[forks-shield]: https://img.shields.io/github/forks/jihchi/dify.svg
 [forks-url]: https://github.com/jihchi/dify/network/members
-[stars-shield]: https://img.shields.io/github/stars/jihchi/dify.svg?style=flat-square
+[stars-shield]: https://img.shields.io/github/stars/jihchi/dify.svg
 [stars-url]: https://github.com/jihchi/dify/stargazers
-[issues-shield]: https://img.shields.io/github/issues/jihchi/dify.svg?style=flat-square
+[issues-shield]: https://img.shields.io/github/issues/jihchi/dify.svg
 [issues-url]: https://github.com/jihchi/dify/issues
-[license-shield]: https://img.shields.io/github/license/jihchi/dify.svg?style=flat-square
+[license-shield]: https://img.shields.io/github/license/jihchi/dify.svg
 [license-url]: https://github.com/jihchi/dify/blob/master/LICENSE.md
+[workflows-CI-shield]: https://github.com/jihchi/dify/workflows/CI/badge.svg
+[workflows-CI-url]: https://github.com/jihchi/dify/actions?query=workflow%3ACI
