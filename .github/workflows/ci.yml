@@ -9,65 +9,6 @@ on:
   pull_request:
 
 jobs:
-  distribution:
-    name: Distribution
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-16.04, macOS-latest, windows-latest]
-        include:
-          - os: ubuntu-16.04
-            name: dify-Linux-x86_64.tar.gz
-          - os: macOS-latest
-            name: dify-Darwin-x86_64.tar.gz
-          - os: windows-latest
-            name: dify-Windows-x86_64.zip
-    steps:
-      - name: Setup | Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup | Cache Cargo
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-
-      - name: Build | Build
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
-
-      - name: Package
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: bash
-        run: |
-          strip target/release/dify
-          cd target/release
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]
-          then
-            7z a ../../${{ matrix.name }} dify
-          else
-            tar czvf ../../${{ matrix.name }} dify
-          fi
-          cd -
-
-      - name: Publish
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          draft: false
-          files: 'dify*'
-
   check:
     name: Check
     runs-on: ${{ matrix.os }}
@@ -159,3 +100,63 @@ jobs:
         with:
           command: clippy
           args: -- -D warnings
+
+  distribution:
+    name: Distribution
+    needs: [check, test, lints]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04, macOS-latest, windows-latest]
+        include:
+          - os: ubuntu-16.04
+            name: dify-Linux-x86_64.tar.gz
+          - os: macOS-latest
+            name: dify-Darwin-x86_64.tar.gz
+          - os: windows-latest
+            name: dify-Windows-x86_64.zip
+    steps:
+      - name: Setup | Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup | Cache Cargo
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Setup | Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build | Build
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - name: Package
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          strip target/release/dify
+          cd target/release
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]
+          then
+            7z a ../../${{ matrix.name }} dify
+          else
+            tar czvf ../../${{ matrix.name }} dify
+          fi
+          cd -
+
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: false
+          files: 'dify*'
