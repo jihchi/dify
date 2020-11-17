@@ -4,15 +4,9 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
-<br />
 <p align="center">
-  <a href="https://github.com/jihchi/dify">
-    <img src="logo.png" alt="Logo" width="173" height="118">
-  </a>
+  <a href="https://github.com/jihchi/dify"><img src="logo.png" alt="Dify Logo" ></a>
   <h3 align="center">Dify</h3>
-  <p align="center">
-    Am image visual difference tool
-  </p>
 </p>
 
 ## Getting Started
