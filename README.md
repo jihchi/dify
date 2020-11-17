@@ -9,9 +9,7 @@
   <h3 align="center">Dify</h3>
 </p>
 
-## Getting Started
-
-### Features
+## Features
 
 | Feature                                                  |     |
 | -------------------------------------------------------- | --- |
@@ -19,6 +17,8 @@
 | Compares different format, `.png` vs `.jpg` for example. | ✅  |
 | Compares different dimensions.                           | ✅  |
 | Supports macOS, Linux and Windows.                       | ✅  |
+
+## Getting Started
 
 ### Installation
 
