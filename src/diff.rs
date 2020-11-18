@@ -14,7 +14,7 @@ pub fn run(
     threshold: f32,
     diff_based_on_left: bool,
     do_not_check_dimensions: bool,
-    include_anti_aliasing: bool,
+    detect_anti_aliased_pixels: bool,
 ) -> Result<Option<u32>> {
     let left_image = ImageReader::open(left)
         .with_context(|| format!("failed to open left image \"{}\"", left.magenta()).red())?
@@ -66,7 +66,7 @@ pub fn run(
             let delta = left_pixel.squared_distance(&right_pixel);
 
             if delta.abs() > threshold {
-                if !include_anti_aliasing
+                if detect_anti_aliased_pixels
                     && (antialiased(&left_image, x, y, width, height, &right_image)
                         || antialiased(&right_image, x, y, width, height, &left_image))
                 {
