@@ -51,41 +51,38 @@ pub fn run(
 
     let mut diffs: u32 = 0;
 
-    for x in 0..width {
-        for y in 0..height {
-            let mut is_different = false;
+    for (x, y, left_pixel) in left_image.enumerate_pixels() {
+        let mut is_different = false;
 
-            if right_image.in_bounds(x, y) {
-                let left_pixel = left_image.get_pixel(x, y);
-                let right_pixel = right_image.get_pixel(x, y);
+        if right_image.in_bounds(x, y) {
+            let right_pixel = right_image.get_pixel(x, y);
 
-                if left_pixel == right_pixel {
-                    continue;
-                }
-
-                let left_pixel = YIQ::from_rgba(left_pixel);
-                let right_pixel = YIQ::from_rgba(right_pixel);
-                let delta = left_pixel.squared_distance(&right_pixel);
-
-                if delta.abs() > threshold {
-                    if !include_anti_aliasing
-                        && (antialiased(&left_image, x, y, width, height, &right_image)
-                            || antialiased(&right_image, x, y, width, height, &left_image))
-                    {
-                        output_image.put_pixel(x, y, YELLOW_PIXEL);
-                        is_different = false;
-                    } else {
-                        is_different = true;
-                    }
-                }
-            } else {
-                is_different = true;
+            if left_pixel == right_pixel {
+                continue;
             }
 
-            if is_different {
-                diffs += 1;
-                output_image.put_pixel(x, y, RED_PIXEL);
+            let left_pixel = YIQ::from_rgba(left_pixel);
+            let right_pixel = YIQ::from_rgba(right_pixel);
+            let delta = left_pixel.squared_distance(&right_pixel);
+
+            if delta.abs() > threshold {
+                if !include_anti_aliasing
+                    && (antialiased(&left_image, x, y, width, height, &right_image)
+                        || antialiased(&right_image, x, y, width, height, &left_image))
+                {
+                    output_image.put_pixel(x, y, YELLOW_PIXEL);
+                    is_different = false;
+                } else {
+                    is_different = true;
+                }
             }
+        } else {
+            is_different = true;
+        }
+
+        if is_different {
+            diffs += 1;
+            output_image.put_pixel(x, y, RED_PIXEL);
         }
     }
 
