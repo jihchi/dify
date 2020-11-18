@@ -12,6 +12,7 @@ const SHORT_NAME_LEFT_IMAGE_PATH: &str = "l";
 const SHORT_NAME_RIGHT_IMAGE_PATH: &str = "r";
 const SHORT_NAME_OUTPUT_IMAGE_PATH: &str = "o";
 const SHORT_NAME_THRESHOLD: &str = "t";
+const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "a";
 
 pub struct Cli {
     program: String,
@@ -38,6 +39,12 @@ impl Cli {
             SHORT_NAME_DIFF_BASED_ON_LEFT,
             "diff-based-on-left",
             "draw the diff image based on the left image",
+        );
+
+        options.optflag(
+            SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS,
+            "detect-anti-aliased",
+            "detect anti-aliased pixels. default: false",
         );
 
         options.optopt(
@@ -101,6 +108,11 @@ impl Cli {
 
     pub fn do_not_check_dimensions(&self) -> bool {
         self.matches.opt_present(SHORT_NAME_DONT_CHECK_DIMENSIONS)
+    }
+
+    pub fn detect_anti_aliased_pixels(&self) -> bool {
+        self.matches
+            .opt_present(SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS)
     }
 
     pub fn get_left_image_path(&self) -> Option<String> {

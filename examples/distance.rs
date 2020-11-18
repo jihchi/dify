@@ -3,8 +3,8 @@ use dify::YIQ;
 use image;
 
 fn main() -> Result<()> {
-    let left = YIQ::from_rgb(&image::Rgb([0, 0, 0]));
-    let right = YIQ::from_rgb(&image::Rgb([255, 255, 255]));
+    let left = YIQ::from_rgba(&image::Rgba([0, 0, 0, 0]));
+    let right = YIQ::from_rgba(&image::Rgba([255, 255, 255, 255]));
 
     println!(
         "Squared: {}, Square Root: {}",
