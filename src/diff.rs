@@ -52,7 +52,7 @@ pub fn run(
     let mut diffs: u32 = 0;
 
     for (x, y, left_pixel) in left_image.enumerate_pixels() {
-        let mut is_different = false;
+        let mut set_color: Option<Rgba<u8>> = None;
 
         if right_image.in_bounds(x, y) {
             let right_pixel = right_image.get_pixel(x, y);
@@ -70,19 +70,19 @@ pub fn run(
                     && (antialiased(&left_image, x, y, width, height, &right_image)
                         || antialiased(&right_image, x, y, width, height, &left_image))
                 {
-                    output_image.put_pixel(x, y, YELLOW_PIXEL);
-                    is_different = false;
+                    set_color = Some(YELLOW_PIXEL);
                 } else {
-                    is_different = true;
+                    diffs += 1;
+                    set_color = Some(RED_PIXEL);
                 }
             }
         } else {
-            is_different = true;
+            diffs += 1;
+            set_color = Some(RED_PIXEL);
         }
 
-        if is_different {
-            diffs += 1;
-            output_image.put_pixel(x, y, RED_PIXEL);
+        if let Some(color) = set_color {
+            output_image.put_pixel(x, y, color);
         }
     }
 
