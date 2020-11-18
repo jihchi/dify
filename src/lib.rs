@@ -18,7 +18,7 @@ fn get_diagonal_neighbours(x1: u32, y1: u32, width: u32, height: u32) -> ((u32, 
     ((x0, y0), (x2, y2))
 }
 
-fn at_the_edge(top_left: (u32, u32), center: (u32, u32), bottom_right: (u32, u32)) -> bool {
+fn on_the_edge(top_left: (u32, u32), center: (u32, u32), bottom_right: (u32, u32)) -> bool {
     center.0 == top_left.0
         || center.0 == bottom_right.0
         || center.1 == top_left.1
@@ -28,7 +28,7 @@ fn at_the_edge(top_left: (u32, u32), center: (u32, u32), bottom_right: (u32, u32
 fn has_many_siblings(image: &RgbaImage, x1: u32, y1: u32, width: u32, height: u32) -> bool {
     let ((x0, y0), (x2, y2)) = get_diagonal_neighbours(x1, y1, width, height);
 
-    let mut zeros: u32 = if at_the_edge((x0, y0), (x1, y1), (x2, y2)) {
+    let mut zeros: u32 = if on_the_edge((x0, y0), (x1, y1), (x2, y2)) {
         0
     } else {
         1
@@ -65,7 +65,7 @@ pub fn antialiased(
 ) -> bool {
     let ((x0, y0), (x2, y2)) = get_diagonal_neighbours(x1, y1, width, height);
 
-    let mut zeros: u32 = if at_the_edge((x0, y0), (x1, y1), (x2, y2)) {
+    let mut zeros: u32 = if on_the_edge((x0, y0), (x1, y1), (x2, y2)) {
         1
     } else {
         0
