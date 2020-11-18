@@ -86,8 +86,8 @@ pub fn antialiased(
                 continue;
             }
 
-            let neighbor = &left.get_pixel(x, y).to_rgb();
-            let delta = YIQ::delta_y(center, neighbor);
+            let neighbor = left.get_pixel(x, y).to_rgb();
+            let delta = YIQ::delta_y(center, &neighbor);
 
             if delta == 0.0 {
                 zeros += 1;
@@ -111,7 +111,7 @@ pub fn antialiased(
     }
 
     (has_many_siblings(left, min_x, min_y, width, height)
-        && has_many_siblings(left, max_x, max_y, width, height))
-        || (has_many_siblings(right, min_x, min_y, width, height)
+        && has_many_siblings(right, min_x, min_y, width, height))
+        || (has_many_siblings(left, max_x, max_y, width, height)
             && has_many_siblings(right, max_x, max_y, width, height))
 }
