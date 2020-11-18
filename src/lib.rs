@@ -1,4 +1,4 @@
-use image::{DynamicImage, GenericImageView, Pixel};
+use image::{Pixel, RgbaImage};
 use std::cmp;
 
 pub mod yiq;
@@ -25,7 +25,7 @@ fn at_the_edge(top_left: (u32, u32), center: (u32, u32), bottom_right: (u32, u32
         || center.1 == bottom_right.1
 }
 
-fn has_many_siblings(image: &DynamicImage, x1: u32, y1: u32, width: u32, height: u32) -> bool {
+fn has_many_siblings(image: &RgbaImage, x1: u32, y1: u32, width: u32, height: u32) -> bool {
     let ((x0, y0), (x2, y2)) = get_diagonal_neighbours(x1, y1, width, height);
 
     let mut zeros: u32 = if at_the_edge((x0, y0), (x1, y1), (x2, y2)) {
@@ -56,12 +56,12 @@ fn has_many_siblings(image: &DynamicImage, x1: u32, y1: u32, width: u32, height:
 }
 
 pub fn antialiased(
-    left: &DynamicImage,
+    left: &RgbaImage,
     x1: u32,
     y1: u32,
     width: u32,
     height: u32,
-    right: &DynamicImage,
+    right: &RgbaImage,
 ) -> bool {
     let ((x0, y0), (x2, y2)) = get_diagonal_neighbours(x1, y1, width, height);
 
