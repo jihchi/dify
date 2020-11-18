@@ -7,16 +7,42 @@ pub struct YIQ {
 
 impl YIQ {
     #[allow(clippy::many_single_char_names, clippy::excessive_precision)]
-    pub fn from_rgb(rgb: &image::Rgb<u8>) -> Self {
+    fn rgb2y(rgb: &image::Rgb<u8>) -> f32 {
         let r = rgb[0] as f32;
         let g = rgb[1] as f32;
         let b = rgb[2] as f32;
 
-        let y = 0.298_895_31 * r + 0.586_622_47 * g + 0.114_482_23 * b;
-        let i = 0.595_977_99 * r - 0.274_171_6 * g - 0.321_801_89 * b;
-        let q = 0.211_470_19 * r - 0.522_617_11 * g + 0.311_146_94 * b;
+        0.298_895_31 * r + 0.586_622_47 * g + 0.114_482_23 * b
+    }
+
+    #[allow(clippy::many_single_char_names, clippy::excessive_precision)]
+    fn rgb2i(rgb: &image::Rgb<u8>) -> f32 {
+        let r = rgb[0] as f32;
+        let g = rgb[1] as f32;
+        let b = rgb[2] as f32;
+
+        0.595_977_99 * r - 0.274_171_6 * g - 0.321_801_89 * b
+    }
+
+    #[allow(clippy::many_single_char_names, clippy::excessive_precision)]
+    fn rgb2q(rgb: &image::Rgb<u8>) -> f32 {
+        let r = rgb[0] as f32;
+        let g = rgb[1] as f32;
+        let b = rgb[2] as f32;
+
+        0.211_470_19 * r - 0.522_617_11 * g + 0.311_146_94 * b
+    }
+
+    pub fn from_rgb(rgb: &image::Rgb<u8>) -> Self {
+        let y = Self::rgb2y(rgb);
+        let i = Self::rgb2i(rgb);
+        let q = Self::rgb2q(rgb);
 
         Self { y, i, q }
+    }
+
+    pub fn delta_y(left: &image::Rgb<u8>, right: &image::Rgb<u8>) -> f32 {
+        Self::rgb2y(left) - Self::rgb2y(right)
     }
 
     // in the performance critical applications, square root can be omiitted

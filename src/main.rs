@@ -24,6 +24,7 @@ fn main() -> Result<()> {
             let do_not_check_dimensions = cli.do_not_check_dimensions();
             let output = cli.get_output_image_path();
             let threshold = cli.get_threshold()?;
+            let include_anti_aliasing = false;
 
             diff::run(
                 &left,
@@ -32,10 +33,11 @@ fn main() -> Result<()> {
                 threshold,
                 diff_based_on_left,
                 do_not_check_dimensions,
+                include_anti_aliasing,
             )
             .map(|code| {
                 if let Some(code) = code {
-                    std::process::exit(code)
+                    std::process::exit(code as i32)
                 }
             })
         }

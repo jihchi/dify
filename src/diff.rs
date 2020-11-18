@@ -1,10 +1,11 @@
 use anyhow::{anyhow, Context, Result};
 use colored::*;
-use dify::yiq::YIQ;
+use dify::{antialiased, yiq::YIQ};
 use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Pixel, Rgba, RgbaImage};
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
+const YELLOW_PIXEL: Rgba<u8> = Rgba([255, 255, 0, 255]);
 
 pub fn run(
     left: &str,
@@ -13,7 +14,8 @@ pub fn run(
     threshold: f32,
     diff_based_on_left: bool,
     do_not_check_dimensions: bool,
-) -> Result<Option<i32>> {
+    include_anti_aliasing: bool,
+) -> Result<Option<u32>> {
     let left = ImageReader::open(left)
         .with_context(|| format!("failed to open left image \"{}\"", left.magenta()).red())?
         .decode()
@@ -45,11 +47,11 @@ pub fn run(
         RgbaImage::new(width, height)
     };
 
-    let mut any_difference = false;
+    let mut diffs: u32 = 0;
 
     for x in 0..width {
         for y in 0..height {
-            let is_difference;
+            let mut is_different = false;
 
             if right.in_bounds(x, y) {
                 let pixel = (left.get_pixel(x, y), right.get_pixel(x, y));
@@ -62,26 +64,36 @@ pub fn run(
                 let yiq = (YIQ::from_rgb(&rgb.0), YIQ::from_rgb(&rgb.1));
                 let delta = yiq.0.squared_distance(&yiq.1);
 
-                is_difference = delta > threshold;
+                if delta.abs() > threshold {
+                    if !include_anti_aliasing
+                        && (antialiased(&left, x, y, width, height, &right)
+                            || antialiased(&right, x, y, width, height, &left))
+                    {
+                        output.put_pixel(x, y, YELLOW_PIXEL);
+                        is_different = false;
+                    } else {
+                        is_different = true;
+                    }
+                }
             } else {
-                is_difference = true;
+                is_different = true;
             }
 
-            if is_difference {
-                any_difference = true;
+            if is_different {
+                diffs += 1;
                 output.put_pixel(x, y, RED_PIXEL);
             }
         }
     }
 
-    if any_difference {
+    if diffs > 0 {
         output
             .save_with_format(output_path, ImageFormat::Png)
             .with_context(|| {
                 format!("failed to write diff image \"{}\"", output_path.magenta()).red()
             })?;
 
-        return Ok(Some(1));
+        return Ok(Some(diffs));
     }
 
     Ok(None)
