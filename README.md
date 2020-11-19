@@ -1,14 +1,8 @@
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![Workflows - CI][workflows-ci-shield]][workflows-ci-url]
-
-<p align="center">
+<h1 align="center">
   <a href="https://github.com/jihchi/dify"><img src="logo.png" alt="Dify Logo" ></a>
-  <h3 align="center">Dify</h3>
-</p>
+</h1>
+
+[![Workflows - CI][workflows-ci-shield]][workflows-ci-url]
 
 ## Features
 
@@ -84,15 +78,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
   - [Measuring perceived color difference using YIQ NTSC transmission color space in mobile applications](http://www.progmat.uaem.mx:8080/artVol2Num2/Articulo3Vol2Num2.pdf) (2010, Yuriy Kotsarenko, Fernando Ramos)
   - [Anti-aliased pixel and intensity slope detector](https://www.researchgate.net/publication/234126755_Anti-aliased_Pixel_and_Intensity_Slope_Detector) (2009, Vytautas Vyšniauskas)
 
-[contributors-shield]: https://img.shields.io/github/contributors/jihchi/dify.svg
-[contributors-url]: https://github.com/jihchi/dify/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/jihchi/dify.svg
-[forks-url]: https://github.com/jihchi/dify/network/members
-[stars-shield]: https://img.shields.io/github/stars/jihchi/dify.svg
-[stars-url]: https://github.com/jihchi/dify/stargazers
-[issues-shield]: https://img.shields.io/github/issues/jihchi/dify.svg
-[issues-url]: https://github.com/jihchi/dify/issues
-[license-shield]: https://img.shields.io/github/license/jihchi/dify.svg
-[license-url]: https://github.com/jihchi/dify/blob/master/LICENSE.md
 [workflows-ci-shield]: https://github.com/jihchi/dify/workflows/CI/badge.svg
 [workflows-ci-url]: https://github.com/jihchi/dify/actions?query=workflow%3ACI
