@@ -17,7 +17,8 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    let (left, right, output) = cli.get_image_paths_of_left_right_diff()?;
+    let (left, right) = cli.get_image_paths_of_left_right_diff()?;
+    let output = cli.get_output_image_path();
     let output_image_base = cli.copy_specific_image_to_output_as_base()?;
     let do_not_check_dimensions = cli.do_not_check_dimensions();
     let threshold = cli.get_threshold()?;

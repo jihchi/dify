@@ -8,6 +8,7 @@ const SHORT_NAME_HELP: &str = "h";
 const SHORT_NAME_VERSION: &str = "v";
 const SHORT_NAME_DONT_CHECK_DIMENSIONS: &str = "i";
 const SHORT_NAME_COPY_IMAGE_AS_BASE: &str = "c";
+const SHORT_NAME_OUTPUT_IMAGE_PATH: &str = "o";
 const SHORT_NAME_THRESHOLD: &str = "t";
 const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "d";
 const DEFAULT_PATH_OF_DIFF_IMAGE: &str = "diff.png";
@@ -52,6 +53,13 @@ impl Cli {
         );
 
         options.optopt(
+            SHORT_NAME_OUTPUT_IMAGE_PATH,
+            "output",
+            "the file path of diff image, PNG only. (default: diff.png)",
+            "OUTPUT",
+        );
+
+        options.optopt(
             SHORT_NAME_THRESHOLD,
             "threshold",
             "matching threshold, ranges from 0 to 1, less more precise. (default: 0.1)",
@@ -69,7 +77,7 @@ impl Cli {
     }
 
     pub fn print_help(&self) {
-        let brief = format!("Usage: {} [options] <LEFT> <RIGHT> [OUTPUT]", self.program);
+        let brief = format!("Usage: {} [options] <LEFT> <RIGHT>", self.program);
         print!("{}", self.options.usage(&brief));
     }
 
@@ -109,6 +117,12 @@ impl Cli {
             .opt_present(SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS)
     }
 
+    pub fn get_output_image_path(&self) -> String {
+        self.matches
+            .opt_str(SHORT_NAME_OUTPUT_IMAGE_PATH)
+            .unwrap_or_else(|| DEFAULT_PATH_OF_DIFF_IMAGE.to_string())
+    }
+
     pub fn get_threshold(&self) -> Result<f32> {
         self.matches
             .opt_str(SHORT_NAME_THRESHOLD)
@@ -123,7 +137,7 @@ impl Cli {
             })
     }
 
-    pub fn get_image_paths_of_left_right_diff(&self) -> Result<(&str, &str, &str)> {
+    pub fn get_image_paths_of_left_right_diff(&self) -> Result<(&str, &str)> {
         let left_image = self
             .matches
             .free
@@ -136,12 +150,6 @@ impl Cli {
             .get(1)
             .with_context(|| format!("the {} argument is missing", "RIGHT".magenta()).red())?;
 
-        let diff_image = self
-            .matches
-            .free
-            .get(2)
-            .map_or(DEFAULT_PATH_OF_DIFF_IMAGE, String::as_str);
-
-        Ok((&left_image, &right_image, diff_image))
+        Ok((&left_image, &right_image))
     }
 }
