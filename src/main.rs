@@ -18,7 +18,7 @@ fn main() -> Result<()> {
     }
 
     let (left, right, output) = cli.get_image_paths_of_left_right_diff()?;
-    let diff_based_on_left = cli.diff_based_on_left();
+    let output_image_base = cli.copy_specific_image_to_output_as_base()?;
     let do_not_check_dimensions = cli.do_not_check_dimensions();
     let threshold = cli.get_threshold()?;
     let detect_anti_aliased_pixels = cli.detect_anti_aliased_pixels();
@@ -28,7 +28,7 @@ fn main() -> Result<()> {
         &right,
         &output,
         threshold,
-        diff_based_on_left,
+        output_image_base,
         do_not_check_dimensions,
         detect_anti_aliased_pixels,
     )
