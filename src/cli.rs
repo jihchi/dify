@@ -10,7 +10,7 @@ const SHORT_NAME_DONT_CHECK_DIMENSIONS: &str = "d";
 const SHORT_NAME_DIFF_BASED_ON_LEFT: &str = "b";
 const SHORT_NAME_THRESHOLD: &str = "t";
 const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "a";
-const DEFAULT_PATH_OF_DIFF_IMAGE: &'static str = "diff.png";
+const DEFAULT_PATH_OF_DIFF_IMAGE: &str = "diff.png";
 
 pub struct Cli {
     program: String,
