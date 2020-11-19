@@ -1,5 +1,5 @@
-pub mod yiq;
 pub mod cli;
+pub mod yiq;
 
 use image::{Pixel, RgbaImage};
 use std::cmp;
