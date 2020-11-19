@@ -11,9 +11,9 @@ impl YIQ {
     #[allow(clippy::many_single_char_names, clippy::excessive_precision)]
     fn rgb2y(rgb: &image::Rgb<u8>) -> f32 {
         let rgb = rgb.channels();
-        let r = rgb[0] as f32;
-        let g = rgb[1] as f32;
-        let b = rgb[2] as f32;
+        let r = f32::from(rgb[0]);
+        let g = f32::from(rgb[1]);
+        let b = f32::from(rgb[2]);
 
         0.298_895_31 * r + 0.586_622_47 * g + 0.114_482_23 * b
     }
@@ -21,9 +21,9 @@ impl YIQ {
     #[allow(clippy::many_single_char_names, clippy::excessive_precision)]
     fn rgb2i(rgb: &image::Rgb<u8>) -> f32 {
         let rgb = rgb.channels();
-        let r = rgb[0] as f32;
-        let g = rgb[1] as f32;
-        let b = rgb[2] as f32;
+        let r = f32::from(rgb[0]);
+        let g = f32::from(rgb[1]);
+        let b = f32::from(rgb[2]);
 
         0.595_977_99 * r - 0.274_171_6 * g - 0.321_801_89 * b
     }
@@ -31,9 +31,9 @@ impl YIQ {
     #[allow(clippy::many_single_char_names, clippy::excessive_precision)]
     fn rgb2q(rgb: &image::Rgb<u8>) -> f32 {
         let rgb = rgb.channels();
-        let r = rgb[0] as f32;
-        let g = rgb[1] as f32;
-        let b = rgb[2] as f32;
+        let r = f32::from(rgb[0]);
+        let g = f32::from(rgb[1]);
+        let b = f32::from(rgb[2]);
 
         0.211_470_19 * r - 0.522_617_11 * g + 0.311_146_94 * b
     }

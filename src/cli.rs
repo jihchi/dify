@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{anyhow, Context, Result};
 use colored::*;
 use getopts::{Matches, Options};
 use std::env;
@@ -6,13 +6,17 @@ use std::env;
 const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
 const SHORT_NAME_HELP: &str = "h";
 const SHORT_NAME_VERSION: &str = "v";
-const SHORT_NAME_DONT_CHECK_DIMENSIONS: &str = "d";
-const SHORT_NAME_DIFF_BASED_ON_LEFT: &str = "b";
-const SHORT_NAME_LEFT_IMAGE_PATH: &str = "l";
-const SHORT_NAME_RIGHT_IMAGE_PATH: &str = "r";
+const SHORT_NAME_DONT_CHECK_DIMENSIONS: &str = "i";
+const SHORT_NAME_COPY_IMAGE_AS_BASE: &str = "c";
 const SHORT_NAME_OUTPUT_IMAGE_PATH: &str = "o";
 const SHORT_NAME_THRESHOLD: &str = "t";
-const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "a";
+const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "d";
+const DEFAULT_PATH_OF_DIFF_IMAGE: &str = "diff.png";
+
+pub enum OutputImageBase {
+    LeftImage,
+    RightImage,
+}
 
 pub struct Cli {
     program: String,
@@ -31,47 +35,34 @@ impl Cli {
 
         options.optflag(
             SHORT_NAME_DONT_CHECK_DIMENSIONS,
-            "dont-check-dimensions",
+            "ignore-dimensions",
             "don't check image dimensions",
         );
 
-        options.optflag(
-            SHORT_NAME_DIFF_BASED_ON_LEFT,
-            "diff-based-on-left",
-            "draw the diff image based on the left image",
+        options.optopt(
+            SHORT_NAME_COPY_IMAGE_AS_BASE,
+            "copy-image",
+            "copies specific image to output as base. (default: left)",
+            "{left, right}",
         );
 
         options.optflag(
             SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS,
             "detect-anti-aliased",
-            "detect anti-aliased pixels. default: false",
-        );
-
-        options.optopt(
-            SHORT_NAME_LEFT_IMAGE_PATH,
-            "left",
-            "the file path of the left image (original)",
-            "FILE",
-        );
-
-        options.optopt(
-            SHORT_NAME_RIGHT_IMAGE_PATH,
-            "right",
-            "the file path of the right image (comparing)",
-            "FILE",
+            "detect anti-aliased pixels. (default: false)",
         );
 
         options.optopt(
             SHORT_NAME_OUTPUT_IMAGE_PATH,
             "output",
-            "the file path of diff image (output), output PNG only. default: diff.png",
-            "FILE",
+            "the file path of diff image, PNG only. (default: diff.png)",
+            "OUTPUT",
         );
 
         options.optopt(
             SHORT_NAME_THRESHOLD,
             "threshold",
-            "matching threshold, ranges from 0 to 1, less more precise. default: 0.1",
+            "matching threshold, ranges from 0 to 1, less more precise. (default: 0.1)",
             "NUM",
         );
 
@@ -81,12 +72,12 @@ impl Cli {
                 matches,
                 options,
             }),
-            Err(f) => bail!(f.to_string()),
+            Err(f) => Err(anyhow!(f.to_string())),
         }
     }
 
     pub fn print_help(&self) {
-        let brief = format!("Usage: {} [options]", self.program);
+        let brief = format!("Usage: {} [options] <LEFT> <RIGHT>", self.program);
         print!("{}", self.options.usage(&brief));
     }
 
@@ -102,8 +93,19 @@ impl Cli {
         self.matches.opt_present(SHORT_NAME_VERSION)
     }
 
-    pub fn diff_based_on_left(&self) -> bool {
-        self.matches.opt_present(SHORT_NAME_DIFF_BASED_ON_LEFT)
+    pub fn copy_specific_image_to_output_as_base(&self) -> Result<Option<OutputImageBase>> {
+        match self.matches.opt_str(SHORT_NAME_COPY_IMAGE_AS_BASE) {
+            Some(value) => match &value.to_lowercase()[..] {
+                "left" => Ok(Some(OutputImageBase::LeftImage)),
+                "right" => Ok(Some(OutputImageBase::RightImage)),
+                unsupported => Err(anyhow!(format!(
+                    "-c/--copy-image \"{}\" is not supported, possible values: left, right",
+                    unsupported.magenta()
+                )
+                .red())),
+            },
+            None => Ok(None),
+        }
     }
 
     pub fn do_not_check_dimensions(&self) -> bool {
@@ -115,18 +117,10 @@ impl Cli {
             .opt_present(SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS)
     }
 
-    pub fn get_left_image_path(&self) -> Option<String> {
-        self.matches.opt_str(SHORT_NAME_LEFT_IMAGE_PATH)
-    }
-
-    pub fn get_right_image_path(&self) -> Option<String> {
-        self.matches.opt_str(SHORT_NAME_RIGHT_IMAGE_PATH)
-    }
-
     pub fn get_output_image_path(&self) -> String {
         self.matches
             .opt_str(SHORT_NAME_OUTPUT_IMAGE_PATH)
-            .unwrap_or_else(|| "diff.png".into())
+            .unwrap_or_else(|| DEFAULT_PATH_OF_DIFF_IMAGE.to_string())
     }
 
     pub fn get_threshold(&self) -> Result<f32> {
@@ -141,5 +135,21 @@ impl Cli {
                     .red()
                 })
             })
+    }
+
+    pub fn get_image_paths_of_left_right_diff(&self) -> Result<(&str, &str)> {
+        let left_image = self
+            .matches
+            .free
+            .get(0)
+            .with_context(|| format!("the {} argument is missing", "LEFT".magenta()).red())?;
+
+        let right_image = self
+            .matches
+            .free
+            .get(1)
+            .with_context(|| format!("the {} argument is missing", "RIGHT".magenta()).red())?;
+
+        Ok((&left_image, &right_image))
     }
 }

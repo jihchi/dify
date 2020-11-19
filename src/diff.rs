@@ -1,6 +1,7 @@
+use crate::cli;
 use anyhow::{anyhow, Context, Result};
 use colored::*;
-use dify::{antialiased, yiq::YIQ};
+use dify::{antialiased, YIQ};
 use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Rgba, RgbaImage};
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
@@ -12,7 +13,7 @@ pub fn run(
     right: &str,
     output_path: &str,
     threshold: f32,
-    diff_based_on_left: bool,
+    outpu_image_base: Option<cli::OutputImageBase>,
     do_not_check_dimensions: bool,
     detect_anti_aliased_pixels: bool,
 ) -> Result<Option<u32>> {
@@ -43,10 +44,10 @@ pub fn run(
     let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
     let (width, height) = left_dimensions;
 
-    let mut output_image = if diff_based_on_left {
-        left_image.clone()
-    } else {
-        RgbaImage::new(width, height)
+    let mut output_image = match outpu_image_base {
+        Some(cli::OutputImageBase::LeftImage) => left_image.clone(),
+        Some(cli::OutputImageBase::RightImage) => right_image.clone(),
+        None => RgbaImage::new(width, height),
     };
 
     let mut diffs: u32 = 0;
