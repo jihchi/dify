@@ -1,6 +1,8 @@
 <h1 align="center">
-  <a href="https://github.com/jihchi/dify"><img src="logo.png" alt="Dify Logo" ></a>
+  <a href="https://github.com/jihchi/dify"><img src="logo.png" alt="Dify Logo" /></a>
 </h1>
+
+> A pixel-by-pixel image diffs tool
 
 [![Workflows - CI][workflows-ci-shield]][workflows-ci-url]
 
