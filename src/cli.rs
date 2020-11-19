@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{anyhow, Context, Result};
 use colored::*;
 use getopts::{Matches, Options};
 use std::env;
@@ -8,11 +8,9 @@ const SHORT_NAME_HELP: &str = "h";
 const SHORT_NAME_VERSION: &str = "v";
 const SHORT_NAME_DONT_CHECK_DIMENSIONS: &str = "d";
 const SHORT_NAME_DIFF_BASED_ON_LEFT: &str = "b";
-const SHORT_NAME_LEFT_IMAGE_PATH: &str = "l";
-const SHORT_NAME_RIGHT_IMAGE_PATH: &str = "r";
-const SHORT_NAME_OUTPUT_IMAGE_PATH: &str = "o";
 const SHORT_NAME_THRESHOLD: &str = "t";
 const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "a";
+const DEFAULT_PATH_OF_DIFF_IMAGE: &'static str = "diff.png";
 
 pub struct Cli {
     program: String,
@@ -48,27 +46,6 @@ impl Cli {
         );
 
         options.optopt(
-            SHORT_NAME_LEFT_IMAGE_PATH,
-            "left",
-            "the file path of the left image (original)",
-            "FILE",
-        );
-
-        options.optopt(
-            SHORT_NAME_RIGHT_IMAGE_PATH,
-            "right",
-            "the file path of the right image (comparing)",
-            "FILE",
-        );
-
-        options.optopt(
-            SHORT_NAME_OUTPUT_IMAGE_PATH,
-            "output",
-            "the file path of diff image (output), output PNG only. default: diff.png",
-            "FILE",
-        );
-
-        options.optopt(
             SHORT_NAME_THRESHOLD,
             "threshold",
             "matching threshold, ranges from 0 to 1, less more precise. default: 0.1",
@@ -81,12 +58,12 @@ impl Cli {
                 matches,
                 options,
             }),
-            Err(f) => bail!(f.to_string()),
+            Err(f) => Err(anyhow!(f.to_string())),
         }
     }
 
     pub fn print_help(&self) {
-        let brief = format!("Usage: {} [options]", self.program);
+        let brief = format!("Usage: {} [options] LEFT RIGHT [OUTPUT]", self.program);
         print!("{}", self.options.usage(&brief));
     }
 
@@ -115,20 +92,6 @@ impl Cli {
             .opt_present(SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS)
     }
 
-    pub fn get_left_image_path(&self) -> Option<String> {
-        self.matches.opt_str(SHORT_NAME_LEFT_IMAGE_PATH)
-    }
-
-    pub fn get_right_image_path(&self) -> Option<String> {
-        self.matches.opt_str(SHORT_NAME_RIGHT_IMAGE_PATH)
-    }
-
-    pub fn get_output_image_path(&self) -> String {
-        self.matches
-            .opt_str(SHORT_NAME_OUTPUT_IMAGE_PATH)
-            .unwrap_or_else(|| "diff.png".into())
-    }
-
     pub fn get_threshold(&self) -> Result<f32> {
         self.matches
             .opt_str(SHORT_NAME_THRESHOLD)
@@ -141,5 +104,27 @@ impl Cli {
                     .red()
                 })
             })
+    }
+
+    pub fn get_image_paths_of_left_right_diff(&self) -> Result<(&str, &str, &str)> {
+        let left_image = self
+            .matches
+            .free
+            .get(0)
+            .with_context(|| format!("the {} argument is missing", "LEFT".magenta()).red())?;
+
+        let right_image = self
+            .matches
+            .free
+            .get(1)
+            .with_context(|| format!("the {} argument is missing", "RIGHT".magenta()).red())?;
+
+        let diff_image = self
+            .matches
+            .free
+            .get(2)
+            .map_or(DEFAULT_PATH_OF_DIFF_IMAGE, String::as_str);
+
+        Ok((&left_image, &right_image, diff_image))
     }
 }

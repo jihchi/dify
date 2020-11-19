@@ -1,9 +1,8 @@
 mod cli;
 mod diff;
 
-use anyhow::{bail, Result};
+use anyhow::Result;
 use cli::Cli;
-use colored::*;
 
 fn main() -> Result<()> {
     let cli = Cli::new()?;
@@ -18,38 +17,24 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    match (cli.get_left_image_path(), cli.get_right_image_path()) {
-        (Some(left), Some(right)) => {
-            let diff_based_on_left = cli.diff_based_on_left();
-            let do_not_check_dimensions = cli.do_not_check_dimensions();
-            let output = cli.get_output_image_path();
-            let threshold = cli.get_threshold()?;
-            let detect_anti_aliased_pixels = cli.detect_anti_aliased_pixels();
+    let (left, right, output) = cli.get_image_paths_of_left_right_diff()?;
+    let diff_based_on_left = cli.diff_based_on_left();
+    let do_not_check_dimensions = cli.do_not_check_dimensions();
+    let threshold = cli.get_threshold()?;
+    let detect_anti_aliased_pixels = cli.detect_anti_aliased_pixels();
 
-            diff::run(
-                &left,
-                &right,
-                &output,
-                threshold,
-                diff_based_on_left,
-                do_not_check_dimensions,
-                detect_anti_aliased_pixels,
-            )
-            .map(|code| {
-                if let Some(code) = code {
-                    std::process::exit(code as i32)
-                }
-            })
+    diff::run(
+        &left,
+        &right,
+        &output,
+        threshold,
+        diff_based_on_left,
+        do_not_check_dimensions,
+        detect_anti_aliased_pixels,
+    )
+    .map(|code| {
+        if let Some(code) = code {
+            std::process::exit(code as i32)
         }
-        (Some(_left), None) => {
-            bail!(format!("the argument {} is missing", "-r/--right FILE".magenta()).red())
-        }
-        (None, Some(_right)) => {
-            bail!(format!("the argument {} is missing", "-l/--left FILE".magenta()).red())
-        }
-        (None, None) => {
-            cli.print_help();
-            Ok(())
-        }
-    }
+    })
 }
