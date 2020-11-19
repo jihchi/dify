@@ -80,6 +80,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Acknowledgements
 
 - This project is inspired by [dmtrKovalenko/odiff](https://github.com/dmtrKovalenko/odiff) and [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch)
+- Same as the projects inspired from, implements ideas from the following papers:
+  - [Measuring perceived color difference using YIQ NTSC transmission color space in mobile applications](http://www.progmat.uaem.mx:8080/artVol2Num2/Articulo3Vol2Num2.pdf) (2010, Yuriy Kotsarenko, Fernando Ramos)
+  - [Anti-aliased pixel and intensity slope detector](https://www.researchgate.net/publication/234126755_Anti-aliased_Pixel_and_Intensity_Slope_Detector) (2009, Vytautas Vyšniauskas)
 
 [contributors-shield]: https://img.shields.io/github/contributors/jihchi/dify.svg
 [contributors-url]: https://github.com/jihchi/dify/graphs/contributors
