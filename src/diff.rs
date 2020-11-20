@@ -34,7 +34,7 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
         .with_context(|| {
             format!("failed to decode left image \"{}\"", params.left.magenta()).red()
         })?
-        .into_rgba8();
+        .into_rgba();
 
     let right_image = ImageReader::open(params.right)
         .with_context(|| {
@@ -48,7 +48,7 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
             )
             .red()
         })?
-        .into_rgba8();
+        .into_rgba();
 
     let left_dimensions = left_image.dimensions();
     let right_dimensions = right_image.dimensions();
