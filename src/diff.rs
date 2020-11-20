@@ -16,32 +16,44 @@ enum DiffResult {
     AntiAliased,
 }
 
-pub fn run(
-    left: &str,
-    right: &str,
-    output_path: &str,
-    threshold: f32,
-    outpu_image_base: Option<cli::OutputImageBase>,
-    do_not_check_dimensions: bool,
-    detect_anti_aliased_pixels: bool,
-    blend_factor_of_unchanged_pixels: Option<f32>,
-) -> Result<Option<u32>> {
-    let left_image = ImageReader::open(left)
-        .with_context(|| format!("failed to open left image \"{}\"", left.magenta()).red())?
+pub struct RunParams<'a> {
+    pub left: &'a str,
+    pub right: &'a str,
+    pub output: &'a str,
+    pub threshold: f32,
+    pub output_image_base: Option<cli::OutputImageBase>,
+    pub do_not_check_dimensions: bool,
+    pub detect_anti_aliased_pixels: bool,
+    pub blend_factor_of_unchanged_pixels: Option<f32>,
+}
+
+pub fn run(params: &RunParams) -> Result<Option<u32>> {
+    let left_image = ImageReader::open(params.left)
+        .with_context(|| format!("failed to open left image \"{}\"", params.left.magenta()).red())?
         .decode()
-        .with_context(|| format!("failed to decode left image \"{}\"", left.magenta()).red())?
+        .with_context(|| {
+            format!("failed to decode left image \"{}\"", params.left.magenta()).red()
+        })?
         .into_rgba();
 
-    let right_image = ImageReader::open(right)
-        .with_context(|| format!("failed to open right image \"{}\"", right.magenta()).red())?
+    let right_image = ImageReader::open(params.right)
+        .with_context(|| {
+            format!("failed to open right image \"{}\"", params.right.magenta()).red()
+        })?
         .decode()
-        .with_context(|| format!("failed to decode right image \"{}\"", right.magenta()).red())?
+        .with_context(|| {
+            format!(
+                "failed to decode right image \"{}\"",
+                params.right.magenta()
+            )
+            .red()
+        })?
         .into_rgba();
 
     let left_dimensions = left_image.dimensions();
     let right_dimensions = right_image.dimensions();
 
-    if !do_not_check_dimensions && left_dimensions != right_dimensions {
+    if !params.do_not_check_dimensions && left_dimensions != right_dimensions {
         return Err(anyhow!(format!(
             "dimensions of the left and right image are different, left: {}, right: {}",
             format!("{}x{}", left_dimensions.0, left_dimensions.1).magenta(),
@@ -50,10 +62,10 @@ pub fn run(
         .red()));
     };
 
-    let threshold = MAX_YIQ_POSSIBLE_DELTA * threshold * threshold;
+    let threshold = MAX_YIQ_POSSIBLE_DELTA * params.threshold * params.threshold;
     let (width, height) = left_dimensions;
 
-    let mut output_image = match outpu_image_base {
+    let mut output_image = match params.output_image_base {
         Some(cli::OutputImageBase::LeftImage) => left_image.clone(),
         Some(cli::OutputImageBase::RightImage) => right_image.clone(),
         None => RgbaImage::new(width, height),
@@ -74,7 +86,7 @@ pub fn run(
                     let delta = left_pixel.squared_distance(&right_pixel);
 
                     if delta.abs() > threshold {
-                        if detect_anti_aliased_pixels
+                        if params.detect_anti_aliased_pixels
                             && (antialiased(&left_image, x, y, width, height, &right_image)
                                 || antialiased(&right_image, x, y, width, height, &left_image))
                         {
@@ -93,16 +105,13 @@ pub fn run(
 
         match result {
             DiffResult::Identical | DiffResult::BelowThreshold => {
-                match blend_factor_of_unchanged_pixels {
-                    Some(alpha) => {
-                        let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
-                        let rgba_a = left_pixel.channels()[3] as f32;
-                        let color =
-                            dify::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0) as u8;
+                if let Some(alpha) = params.blend_factor_of_unchanged_pixels {
+                    let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
+                    let rgba_a = left_pixel.channels()[3] as f32;
+                    let color =
+                        dify::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0) as u8;
 
-                        output_image.put_pixel(x, y, Rgba([color, color, color, u8::MAX]));
-                    }
-                    None => {}
+                    output_image.put_pixel(x, y, Rgba([color, color, color, u8::MAX]));
                 }
             }
             DiffResult::Different | DiffResult::OutOfBounds => {
@@ -117,9 +126,9 @@ pub fn run(
 
     if diffs > 0 {
         output_image
-            .save_with_format(output_path, ImageFormat::Png)
+            .save_with_format(params.output, ImageFormat::Png)
             .with_context(|| {
-                format!("failed to write diff image \"{}\"", output_path.magenta()).red()
+                format!("failed to write diff image \"{}\"", params.output.magenta()).red()
             })?;
 
         return Ok(Some(diffs));
