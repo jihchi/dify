@@ -10,6 +10,7 @@ const YELLOW_PIXEL: Rgba<u8> = Rgba([255, 255, 0, 255]);
 
 enum DiffResult {
     Identical,
+    BelowThreshold,
     Different,
     OutOfBounds,
     AntiAliased,
@@ -81,7 +82,7 @@ pub fn run(
                             DiffResult::Different
                         }
                     } else {
-                        DiffResult::Identical
+                        DiffResult::BelowThreshold
                     }
                 }
             } else {
@@ -90,7 +91,7 @@ pub fn run(
         };
 
         match result {
-            DiffResult::Identical => {}
+            DiffResult::Identical | DiffResult::BelowThreshold => {}
             DiffResult::Different | DiffResult::OutOfBounds => {
                 diffs += 1;
                 output_image.put_pixel(x, y, RED_PIXEL);
