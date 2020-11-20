@@ -115,3 +115,39 @@ pub fn antialiased(
         || (has_many_siblings(left, max_x, max_y, width, height)
             && has_many_siblings(right, max_x, max_y, width, height))
 }
+
+pub fn blend_semi_transparent_white(color: f32, alpha: f32) -> u8 {
+    (color + (color - 255.0) * alpha) as u8
+}
+
+#[cfg(test)]
+mod tests {
+    use super::blend_semi_transparent_white;
+
+    #[test]
+    fn test_blend_semi_transparent_white() {
+        assert_eq!(255, blend_semi_transparent_white(255.0, 0.0));
+        assert_eq!(255, blend_semi_transparent_white(255.0, 0.1));
+        assert_eq!(255, blend_semi_transparent_white(255.0, 0.3));
+        assert_eq!(255, blend_semi_transparent_white(255.0, 0.5));
+        assert_eq!(255, blend_semi_transparent_white(255.0, 0.7));
+        assert_eq!(255, blend_semi_transparent_white(255.0, 0.9));
+        assert_eq!(255, blend_semi_transparent_white(255.0, 1.0));
+
+        assert_eq!(128, blend_semi_transparent_white(128.0, 0.0));
+        assert_eq!(115, blend_semi_transparent_white(128.0, 0.1));
+        assert_eq!(89, blend_semi_transparent_white(128.0, 0.3));
+        assert_eq!(64, blend_semi_transparent_white(128.0, 0.5));
+        assert_eq!(39, blend_semi_transparent_white(128.0, 0.7));
+        assert_eq!(13, blend_semi_transparent_white(128.0, 0.9));
+        assert_eq!(1, blend_semi_transparent_white(128.0, 1.0));
+
+        assert_eq!(0, blend_semi_transparent_white(0.0, 0.0));
+        assert_eq!(0, blend_semi_transparent_white(0.0, 0.1));
+        assert_eq!(0, blend_semi_transparent_white(0.0, 0.3));
+        assert_eq!(0, blend_semi_transparent_white(0.0, 0.5));
+        assert_eq!(0, blend_semi_transparent_white(0.0, 0.7));
+        assert_eq!(0, blend_semi_transparent_white(0.0, 0.9));
+        assert_eq!(0, blend_semi_transparent_white(0.0, 1.0));
+    }
+}

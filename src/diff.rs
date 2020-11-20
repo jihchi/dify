@@ -2,7 +2,7 @@ use crate::cli;
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use dify::{antialiased, YIQ};
-use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Rgba, RgbaImage};
+use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Pixel, Rgba, RgbaImage};
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
@@ -91,7 +91,14 @@ pub fn run(
         };
 
         match result {
-            DiffResult::Identical | DiffResult::BelowThreshold => {}
+            DiffResult::Identical | DiffResult::BelowThreshold => {
+                let alpha = 0.1;
+                let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
+                let rgba_a = left_pixel.channels()[3] as f32;
+                let color = dify::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0);
+
+                output_image.put_pixel(x, y, Rgba([color, color, color, (alpha * rgba_a) as u8]));
+            }
             DiffResult::Different | DiffResult::OutOfBounds => {
                 diffs += 1;
                 output_image.put_pixel(x, y, RED_PIXEL);
