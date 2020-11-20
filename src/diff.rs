@@ -8,6 +8,12 @@ const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
 const YELLOW_PIXEL: Rgba<u8> = Rgba([255, 255, 0, 255]);
 
+enum DiffResult {
+    Same,
+    Different,
+    AntiAliased,
+}
+
 pub fn run(
     left: &str,
     right: &str,
@@ -53,37 +59,44 @@ pub fn run(
     let mut diffs: u32 = 0;
 
     for (x, y, left_pixel) in left_image.enumerate_pixels() {
-        let mut set_color: Option<Rgba<u8>> = None;
+        let result = {
+            if right_image.in_bounds(x, y) {
+                let right_pixel = right_image.get_pixel(x, y);
 
-        if right_image.in_bounds(x, y) {
-            let right_pixel = right_image.get_pixel(x, y);
-
-            if left_pixel == right_pixel {
-                continue;
-            }
-
-            let left_pixel = YIQ::from_rgba(left_pixel);
-            let right_pixel = YIQ::from_rgba(right_pixel);
-            let delta = left_pixel.squared_distance(&right_pixel);
-
-            if delta.abs() > threshold {
-                if detect_anti_aliased_pixels
-                    && (antialiased(&left_image, x, y, width, height, &right_image)
-                        || antialiased(&right_image, x, y, width, height, &left_image))
-                {
-                    set_color = Some(YELLOW_PIXEL);
+                if left_pixel == right_pixel {
+                    DiffResult::Same
                 } else {
-                    diffs += 1;
-                    set_color = Some(RED_PIXEL);
-                }
-            }
-        } else {
-            diffs += 1;
-            set_color = Some(RED_PIXEL);
-        }
+                    let left_pixel = YIQ::from_rgba(left_pixel);
+                    let right_pixel = YIQ::from_rgba(right_pixel);
+                    let delta = left_pixel.squared_distance(&right_pixel);
 
-        if let Some(color) = set_color {
-            output_image.put_pixel(x, y, color);
+                    if delta.abs() > threshold {
+                        if detect_anti_aliased_pixels
+                            && (antialiased(&left_image, x, y, width, height, &right_image)
+                                || antialiased(&right_image, x, y, width, height, &left_image))
+                        {
+                            DiffResult::AntiAliased
+                        } else {
+                            DiffResult::Different
+                        }
+                    } else {
+                        DiffResult::Same
+                    }
+                }
+            } else {
+                DiffResult::Different
+            }
+        };
+
+        match result {
+            DiffResult::Same => {}
+            DiffResult::Different => {
+                diffs += 1;
+                output_image.put_pixel(x, y, RED_PIXEL);
+            }
+            DiffResult::AntiAliased => {
+                output_image.put_pixel(x, y, YELLOW_PIXEL);
+            }
         }
     }
 
