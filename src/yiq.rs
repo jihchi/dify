@@ -9,7 +9,7 @@ pub struct YIQ {
 
 impl YIQ {
     #[allow(clippy::many_single_char_names, clippy::excessive_precision)]
-    fn rgb2y(rgb: &image::Rgb<u8>) -> f32 {
+    pub fn rgb2y(rgb: &image::Rgb<u8>) -> f32 {
         let rgb = rgb.channels();
         let r = f32::from(rgb[0]);
         let g = f32::from(rgb[1]);

@@ -11,6 +11,7 @@ const SHORT_NAME_COPY_IMAGE_AS_BASE: &str = "c";
 const SHORT_NAME_OUTPUT_IMAGE_PATH: &str = "o";
 const SHORT_NAME_THRESHOLD: &str = "t";
 const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "d";
+const SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS: &str = "a";
 const DEFAULT_PATH_OF_DIFF_IMAGE: &str = "diff.png";
 
 pub enum OutputImageBase {
@@ -37,6 +38,13 @@ impl Cli {
             SHORT_NAME_DONT_CHECK_DIMENSIONS,
             "ignore-dimensions",
             "don't check image dimensions",
+        );
+
+        options.optflagopt(
+            SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS,
+            "alpha",
+            "blending factor of unchanged pixels in the diff output. ranges from 0 for pure white to 1 for original brightness. (default: 0.1)",
+            "NUM"
         );
 
         options.optopt(
@@ -117,6 +125,35 @@ impl Cli {
             .opt_present(SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS)
     }
 
+    pub fn blend_factor_of_unchanged_pixels(&self) -> Result<Option<f32>> {
+        match self
+            .matches
+            .opt_str(SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS)
+        {
+            Some(s) => s
+                .parse::<f32>()
+                .with_context(|| {
+                    format!(
+                        "the value of {} is invalid",
+                        format!("-a/--alpha {}", s).magenta()
+                    )
+                    .red()
+                })
+                .and_then(|n| {
+                    if n >= 0.0 && n <= 1.0 {
+                        Ok(Some(n))
+                    } else {
+                        Err(anyhow!(format!(
+                            "the value of {} should be in range 0 to 1",
+                            format!("-a/--alpha {}", s).magenta()
+                        )
+                        .red()))
+                    }
+                }),
+            None => Ok(Some(0.1)),
+        }
+    }
+
     pub fn get_output_image_path(&self) -> String {
         self.matches
             .opt_str(SHORT_NAME_OUTPUT_IMAGE_PATH)
@@ -126,11 +163,11 @@ impl Cli {
     pub fn get_threshold(&self) -> Result<f32> {
         self.matches
             .opt_str(SHORT_NAME_THRESHOLD)
-            .map_or(Ok(0.1), |opt| {
-                opt.parse::<f32>().with_context(|| {
+            .map_or(Ok(0.1), |s| {
+                s.parse::<f32>().with_context(|| {
                     format!(
                         "the value of {} is invalid",
-                        format!("-t/--threshold {}", opt).magenta()
+                        format!("-t/--threshold {}", s).magenta()
                     )
                     .red()
                 })
