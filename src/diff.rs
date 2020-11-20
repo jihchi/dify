@@ -24,6 +24,7 @@ pub fn run(
     outpu_image_base: Option<cli::OutputImageBase>,
     do_not_check_dimensions: bool,
     detect_anti_aliased_pixels: bool,
+    blend_factor_of_unchanged_pixels: Option<f32>,
 ) -> Result<Option<u32>> {
     let left_image = ImageReader::open(left)
         .with_context(|| format!("failed to open left image \"{}\"", left.magenta()).red())?
@@ -92,12 +93,21 @@ pub fn run(
 
         match result {
             DiffResult::Identical | DiffResult::BelowThreshold => {
-                let alpha = 0.1;
-                let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
-                let rgba_a = left_pixel.channels()[3] as f32;
-                let color = dify::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0);
+                match blend_factor_of_unchanged_pixels {
+                    Some(alpha) => {
+                        let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
+                        let rgba_a = left_pixel.channels()[3] as f32;
+                        let color =
+                            dify::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0);
 
-                output_image.put_pixel(x, y, Rgba([color, color, color, (alpha * rgba_a) as u8]));
+                        output_image.put_pixel(
+                            x,
+                            y,
+                            Rgba([color, color, color, (alpha * rgba_a) as u8]),
+                        );
+                    }
+                    None => {}
+                }
             }
             DiffResult::Different | DiffResult::OutOfBounds => {
                 diffs += 1;

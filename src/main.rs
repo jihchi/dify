@@ -23,6 +23,7 @@ fn main() -> Result<()> {
     let do_not_check_dimensions = cli.do_not_check_dimensions();
     let threshold = cli.get_threshold()?;
     let detect_anti_aliased_pixels = cli.detect_anti_aliased_pixels();
+    let blend_factor_of_unchanged_pixels = cli.blend_factor_of_unchanged_pixels()?;
 
     diff::run(
         &left,
@@ -32,6 +33,7 @@ fn main() -> Result<()> {
         output_image_base,
         do_not_check_dimensions,
         detect_anti_aliased_pixels,
+        blend_factor_of_unchanged_pixels,
     )
     .map(|code| {
         if let Some(code) = code {
