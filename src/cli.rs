@@ -40,7 +40,7 @@ impl Cli {
             "don't check image dimensions",
         );
 
-        options.optopt(
+        options.optflagopt(
             SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS,
             "alpha",
             "blending factor of unchanged pixels in the diff output. ranges from 0 for pure white to 1 for original brightness. (default: 0.1)",
@@ -150,7 +150,7 @@ impl Cli {
                         .red()))
                     }
                 }),
-            None => Ok(None),
+            None => Ok(Some(0.1)),
         }
     }
 

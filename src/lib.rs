@@ -116,8 +116,8 @@ pub fn antialiased(
             && has_many_siblings(right, max_x, max_y, width, height))
 }
 
-pub fn blend_semi_transparent_white(color: f32, alpha: f32) -> u8 {
-    (color + (color - 255.0) * alpha) as u8
+pub fn blend_semi_transparent_white(color: f32, alpha: f32) -> f32 {
+    255.0 + (color - 255.0) * alpha
 }
 
 #[cfg(test)]
@@ -126,28 +126,28 @@ mod tests {
 
     #[test]
     fn test_blend_semi_transparent_white() {
-        assert_eq!(255, blend_semi_transparent_white(255.0, 0.0));
-        assert_eq!(255, blend_semi_transparent_white(255.0, 0.1));
-        assert_eq!(255, blend_semi_transparent_white(255.0, 0.3));
-        assert_eq!(255, blend_semi_transparent_white(255.0, 0.5));
-        assert_eq!(255, blend_semi_transparent_white(255.0, 0.7));
-        assert_eq!(255, blend_semi_transparent_white(255.0, 0.9));
-        assert_eq!(255, blend_semi_transparent_white(255.0, 1.0));
+        assert_eq!(255.0, blend_semi_transparent_white(255.0, 0.0));
+        assert_eq!(255.0, blend_semi_transparent_white(255.0, 0.1));
+        assert_eq!(255.0, blend_semi_transparent_white(255.0, 0.3));
+        assert_eq!(255.0, blend_semi_transparent_white(255.0, 0.5));
+        assert_eq!(255.0, blend_semi_transparent_white(255.0, 0.7));
+        assert_eq!(255.0, blend_semi_transparent_white(255.0, 0.9));
+        assert_eq!(255.0, blend_semi_transparent_white(255.0, 1.0));
 
-        assert_eq!(128, blend_semi_transparent_white(128.0, 0.0));
-        assert_eq!(115, blend_semi_transparent_white(128.0, 0.1));
-        assert_eq!(89, blend_semi_transparent_white(128.0, 0.3));
-        assert_eq!(64, blend_semi_transparent_white(128.0, 0.5));
-        assert_eq!(39, blend_semi_transparent_white(128.0, 0.7));
-        assert_eq!(13, blend_semi_transparent_white(128.0, 0.9));
-        assert_eq!(1, blend_semi_transparent_white(128.0, 1.0));
+        assert_eq!(255.0, blend_semi_transparent_white(128.0, 0.0));
+        assert_eq!(242.3, blend_semi_transparent_white(128.0, 0.1));
+        assert_eq!(216.9, blend_semi_transparent_white(128.0, 0.3));
+        assert_eq!(191.5, blend_semi_transparent_white(128.0, 0.5));
+        assert_eq!(166.1, blend_semi_transparent_white(128.0, 0.7));
+        assert_eq!(140.70001, blend_semi_transparent_white(128.0, 0.9));
+        assert_eq!(128.0, blend_semi_transparent_white(128.0, 1.0));
 
-        assert_eq!(0, blend_semi_transparent_white(0.0, 0.0));
-        assert_eq!(0, blend_semi_transparent_white(0.0, 0.1));
-        assert_eq!(0, blend_semi_transparent_white(0.0, 0.3));
-        assert_eq!(0, blend_semi_transparent_white(0.0, 0.5));
-        assert_eq!(0, blend_semi_transparent_white(0.0, 0.7));
-        assert_eq!(0, blend_semi_transparent_white(0.0, 0.9));
-        assert_eq!(0, blend_semi_transparent_white(0.0, 1.0));
+        assert_eq!(255.0, blend_semi_transparent_white(0.0, 0.0));
+        assert_eq!(229.5, blend_semi_transparent_white(0.0, 0.1));
+        assert_eq!(178.5, blend_semi_transparent_white(0.0, 0.3));
+        assert_eq!(127.5, blend_semi_transparent_white(0.0, 0.5));
+        assert_eq!(76.5, blend_semi_transparent_white(0.0, 0.7));
+        assert_eq!(25.5, blend_semi_transparent_white(0.0, 0.9));
+        assert_eq!(0.0, blend_semi_transparent_white(0.0, 1.0));
     }
 }
