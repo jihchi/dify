@@ -9,8 +9,9 @@ const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
 const YELLOW_PIXEL: Rgba<u8> = Rgba([255, 255, 0, 255]);
 
 enum DiffResult {
-    Same,
+    Identical,
     Different,
+    OutOfBounds,
     AntiAliased,
 }
 
@@ -64,7 +65,7 @@ pub fn run(
                 let right_pixel = right_image.get_pixel(x, y);
 
                 if left_pixel == right_pixel {
-                    DiffResult::Same
+                    DiffResult::Identical
                 } else {
                     let left_pixel = YIQ::from_rgba(left_pixel);
                     let right_pixel = YIQ::from_rgba(right_pixel);
@@ -80,17 +81,17 @@ pub fn run(
                             DiffResult::Different
                         }
                     } else {
-                        DiffResult::Same
+                        DiffResult::Identical
                     }
                 }
             } else {
-                DiffResult::Different
+                DiffResult::OutOfBounds
             }
         };
 
         match result {
-            DiffResult::Same => {}
-            DiffResult::Different => {
+            DiffResult::Identical => {}
+            DiffResult::Different | DiffResult::OutOfBounds => {
                 diffs += 1;
                 output_image.put_pixel(x, y, RED_PIXEL);
             }
