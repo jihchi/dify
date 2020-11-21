@@ -47,7 +47,7 @@ impl Cli {
             "NUM"
         );
 
-        options.optopt(
+        options.optflagopt(
             SHORT_NAME_COPY_IMAGE_AS_BASE,
             "copy-image",
             "copies specific image to output as base. (default: left)",
@@ -102,6 +102,10 @@ impl Cli {
     }
 
     pub fn copy_specific_image_to_output_as_base(&self) -> Result<Option<OutputImageBase>> {
+        if !self.matches.opt_present(SHORT_NAME_COPY_IMAGE_AS_BASE) {
+            return Ok(None);
+        }
+
         match self.matches.opt_str(SHORT_NAME_COPY_IMAGE_AS_BASE) {
             Some(value) => match &value.to_lowercase()[..] {
                 "left" => Ok(Some(OutputImageBase::LeftImage)),
@@ -112,7 +116,7 @@ impl Cli {
                 )
                 .red())),
             },
-            None => Ok(None),
+            None => Ok(Some(OutputImageBase::LeftImage)),
         }
     }
 
