@@ -8,6 +8,9 @@ publish = false
 [package.metadata.release]
 pre-release-commit-message = "Bump version to {{version}}"
 
+[features]
+print-timing = []
+
 [dependencies]
 image = "0.23.11"
 getopts = "0.2"
