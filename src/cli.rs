@@ -126,6 +126,13 @@ impl Cli {
     }
 
     pub fn blend_factor_of_unchanged_pixels(&self) -> Result<Option<f32>> {
+        if !self
+            .matches
+            .opt_present(SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS)
+        {
+            return Ok(None);
+        }
+
         match self
             .matches
             .opt_str(SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS)
