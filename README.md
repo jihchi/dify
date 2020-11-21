@@ -33,30 +33,15 @@ dify left.jpg right.jpg
 ## Benchmarks
 
 ```
-$ hyperfine -i 'dify water-4k.png water-4k-2.png water-diff.png' 'dify www.cypress.io.png www.cypress.io-1.png www.cypress.io-diff.png' 'dify tiger.jpg tiger-2.jpg tiger-diff.png'
-Benchmark #1: dify water-4k.png water-4k-2.png water-diff.png
-  Time (mean ± σ):      2.764 s ±  0.026 s    [User: 2.581 s, System: 0.164 s]
-  Range (min … max):    2.733 s …  2.805 s    10 runs
-
-  Warning: Ignoring non-zero exit code.
-
-Benchmark #2: dify www.cypress.io.png www.cypress.io-1.png www.cypress.io-diff.png
-  Time (mean ± σ):      1.714 s ±  0.040 s    [User: 1.554 s, System: 0.148 s]
-  Range (min … max):    1.674 s …  1.783 s    10 runs
-
-  Warning: Ignoring non-zero exit code.
-
-Benchmark #3: dify tiger.jpg tiger-2.jpg tiger-diff.png
-  Time (mean ± σ):      67.1 ms ±   1.5 ms    [User: 89.5 ms, System: 9.0 ms]
-  Range (min … max):    65.2 ms …  71.2 ms    41 runs
-
-  Warning: Ignoring non-zero exit code.
-
-Summary
-  'dify tiger.jpg tiger-2.jpg tiger-diff.png' ran
-   25.54 ± 0.83 times faster than 'dify www.cypress.io.png www.cypress.io-1.png www.cypress.io-diff.png'
-   41.19 ± 1.01 times faster than 'dify water-4k.png water-4k-2.png water-diff.png'
+$ hyperfine --warmup 3 --ignore-failure --export-markdown bench.md 'dify water-4k.png water-4k-2.png -o water-diff.png' 'dify www.cypress.io.png www.cypress.io-1.png -o www.cypress.io-diff.png' 'dify tiger.jpg tiger-2.jpg -o tiger-diff.png'
 ```
+
+| Command | Mean [s] | Min [s] | Max [s] | Relative |
+|:---|---:|---:|---:|---:|
+| `dify water-4k.png water-4k-2.png -o water-diff.png` | 2.350 ± 0.028 | 2.332 | 2.403 | 47.49 ± 0.73 |
+| `dify www.cypress.io.png www.cypress.io-1.png -o www.cypress.io-diff.png` | 0.288 ± 0.001 | 0.286 | 0.290 | 5.81 ± 0.06 |
+| `dify tiger.jpg tiger-2.jpg -o tiger-diff.png` | 0.049 ± 0.000 | 0.049 | 0.051 | 1.00 |
+
 
 Ran on MacBook Pro (13-inch, 2019, Two Thunderbolt 3 ports), macOS Catalina 10.15.7.
 
