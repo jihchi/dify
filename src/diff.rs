@@ -28,6 +28,9 @@ pub struct RunParams<'a> {
 }
 
 pub fn run(params: &RunParams) -> Result<Option<u32>> {
+    #[cfg(feature = "print-timing")]
+    let start = std::time::Instant::now();
+
     let left_image = ImageReader::open(params.left)
         .with_context(|| format!("failed to open left image \"{}\"", params.left.magenta()).red())?
         .decode()
@@ -35,6 +38,15 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
             format!("failed to decode left image \"{}\"", params.left.magenta()).red()
         })?
         .into_rgba();
+
+    #[cfg(feature = "print-timing")]
+    println!(
+        "open and decode left image: {}ms",
+        start.elapsed().as_millis()
+    );
+
+    #[cfg(feature = "print-timing")]
+    let start = std::time::Instant::now();
 
     let right_image = ImageReader::open(params.right)
         .with_context(|| {
@@ -49,6 +61,12 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
             .red()
         })?
         .into_rgba();
+
+    #[cfg(feature = "print-timing")]
+    println!(
+        "open and decode right image: {}ms",
+        start.elapsed().as_millis()
+    );
 
     let left_dimensions = left_image.dimensions();
     let right_dimensions = right_image.dimensions();
@@ -72,6 +90,9 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
     };
 
     let mut diffs: u32 = 0;
+
+    #[cfg(feature = "print-timing")]
+    let start = std::time::Instant::now();
 
     for (x, y, left_pixel) in left_image.enumerate_pixels() {
         let result = {
@@ -124,12 +145,24 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
         }
     }
 
+    #[cfg(feature = "print-timing")]
+    println!(
+        "detect differences and update output image: {}ms",
+        start.elapsed().as_millis()
+    );
+
     if diffs > 0 {
+        #[cfg(feature = "print-timing")]
+        let start = std::time::Instant::now();
+
         output_image
             .save_with_format(params.output, ImageFormat::Png)
             .with_context(|| {
                 format!("failed to write diff image \"{}\"", params.output.magenta()).red()
             })?;
+
+        #[cfg(feature = "print-timing")]
+        println!("save output image: {}ms", start.elapsed().as_millis());
 
         return Ok(Some(diffs));
     }
