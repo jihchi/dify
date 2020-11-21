@@ -32,6 +32,8 @@ dify left.jpg right.jpg
 
 ## Benchmarks
 
+>  Test data is coming from [here](https://github.com/dmtrKovalenko/odiff/tree/main/images)
+
 ```
 $ hyperfine --warmup 3 --ignore-failure --export-markdown bench.md 'dify water-4k.png water-4k-2.png -o water-diff.png' 'dify www.cypress.io.png www.cypress.io-1.png -o www.cypress.io-diff.png' 'dify tiger.jpg tiger-2.jpg -o tiger-diff.png'
 ```
