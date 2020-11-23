@@ -10,6 +10,8 @@ const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
 const YELLOW_PIXEL: Rgba<u8> = Rgba([255, 255, 0, 255]);
 
+type LoadedImage = Result<ImageBuffer<Rgba<u8>, Vec<u8>>>;
+
 enum DiffResult {
     Identical,
     BelowThreshold,
@@ -30,10 +32,7 @@ pub struct RunParams<'a> {
 }
 
 pub fn run(params: &RunParams) -> Result<Option<u32>> {
-    let (left_image, right_image): (
-        Result<ImageBuffer<Rgba<u8>, Vec<u8>>>,
-        Result<ImageBuffer<Rgba<u8>, Vec<u8>>>,
-    ) = rayon::join(
+    let (left_image, right_image): (LoadedImage, LoadedImage) = rayon::join(
         || {
             Ok(ImageReader::open(params.left)
                 .with_context(|| {
