@@ -2,7 +2,9 @@ use crate::cli;
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use dify::{antialiased, YIQ};
-use image::{io::Reader as ImageReader, GenericImageView, ImageFormat, Pixel, Rgba, RgbaImage};
+use image::{
+    io::Reader as ImageReader, GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage,
+};
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
@@ -28,28 +30,39 @@ pub struct RunParams<'a> {
 }
 
 pub fn run(params: &RunParams) -> Result<Option<u32>> {
-    let left_image = ImageReader::open(params.left)
-        .with_context(|| format!("failed to open left image \"{}\"", params.left.magenta()).red())?
-        .decode()
-        .with_context(|| {
-            format!("failed to decode left image \"{}\"", params.left.magenta()).red()
-        })?
-        .into_rgba();
+    let (left_image, right_image): (
+        Result<ImageBuffer<Rgba<u8>, Vec<u8>>>,
+        Result<ImageBuffer<Rgba<u8>, Vec<u8>>>,
+    ) = rayon::join(
+        || {
+            Ok(ImageReader::open(params.left)
+                .with_context(|| {
+                    format!("failed to open left image \"{}\"", params.left.magenta()).red()
+                })?
+                .decode()
+                .with_context(|| {
+                    format!("failed to decode left image \"{}\"", params.left.magenta()).red()
+                })?
+                .into_rgba())
+        },
+        || {
+            Ok(ImageReader::open(params.right)
+                .with_context(|| {
+                    format!("failed to open right image \"{}\"", params.right.magenta()).red()
+                })?
+                .decode()
+                .with_context(|| {
+                    format!(
+                        "failed to decode right image \"{}\"",
+                        params.right.magenta()
+                    )
+                    .red()
+                })?
+                .into_rgba())
+        },
+    );
 
-    let right_image = ImageReader::open(params.right)
-        .with_context(|| {
-            format!("failed to open right image \"{}\"", params.right.magenta()).red()
-        })?
-        .decode()
-        .with_context(|| {
-            format!(
-                "failed to decode right image \"{}\"",
-                params.right.magenta()
-            )
-            .red()
-        })?
-        .into_rgba();
-
+    let (left_image, right_image) = (left_image?, right_image?);
     let left_dimensions = left_image.dimensions();
     let right_dimensions = right_image.dimensions();
 

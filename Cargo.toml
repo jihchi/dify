@@ -13,4 +13,4 @@ image = "0.23.11"
 getopts = "0.2"
 anyhow = "1.0"
 colored = "2.0.0"
-
+rayon = "1.5.0"
