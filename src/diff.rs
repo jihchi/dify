@@ -2,9 +2,7 @@ use crate::cli;
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use dify::{antialiased, YIQ};
-use image::{
-    io::Reader as ImageReader, GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage,
-};
+use image::{io::Reader as ImageReader, GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba};
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
@@ -76,7 +74,8 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
 
     let threshold = MAX_YIQ_POSSIBLE_DELTA * params.threshold * params.threshold;
     let (width, height) = left_dimensions;
-    let pixels: Vec<(u32, u32, &Rgba<u8>)> = left_image.enumerate_pixels().collect();
+
+    let pixels = left_image.enumerate_pixels().collect::<Vec<_>>();
 
     let results = pixels.iter().map(|(x, y, left_pixel)| {
         let result = {
@@ -122,7 +121,7 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
         let mut output_image = match params.output_image_base {
             Some(cli::OutputImageBase::LeftImage) => left_image.clone(),
             Some(cli::OutputImageBase::RightImage) => right_image.clone(),
-            None => RgbaImage::new(width, height),
+            None => ImageBuffer::new(width, height),
         };
 
         for (x, y, result) in results {
