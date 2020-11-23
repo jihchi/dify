@@ -35,15 +35,20 @@ dify left.jpg right.jpg
 >  Test data is coming from [here](https://github.com/dmtrKovalenko/odiff/tree/main/images)
 
 ```
-$ hyperfine --warmup 3 --ignore-failure --export-markdown bench.md 'dify water-4k.png water-4k-2.png -o water-diff.png' 'dify www.cypress.io.png www.cypress.io-1.png -o www.cypress.io-diff.png' 'dify tiger.jpg tiger-2.jpg -o tiger-diff.png'
+$ hyperfine \
+  --warmup 1 \
+  --ignore-failure \
+  --export-markdown bench-dify.md \
+  'dify tiger.jpg tiger-2.jpg -o tiger-diff.png' \
+  'dify water-4k.png water-4k-2.png -o water-diff.png' \
+  'dify www.cypress.io.png www.cypress.io-2.png -o www.cypress.io-diff.png'
 ```
 
 | Command | Mean [s] | Min [s] | Max [s] | Relative |
 |:---|---:|---:|---:|---:|
-| `dify water-4k.png water-4k-2.png -o water-diff.png` | 2.350 ± 0.028 | 2.332 | 2.403 | 47.49 ± 0.73 |
-| `dify www.cypress.io.png www.cypress.io-1.png -o www.cypress.io-diff.png` | 0.288 ± 0.001 | 0.286 | 0.290 | 5.81 ± 0.06 |
-| `dify tiger.jpg tiger-2.jpg -o tiger-diff.png` | 0.049 ± 0.000 | 0.049 | 0.051 | 1.00 |
-
+| `dify tiger.jpg tiger-2.jpg -o tiger-diff.png` | 0.041 ± 0.001 | 0.040 | 0.045 | 1.00 |
+| `dify water-4k.png water-4k-2.png -o water-diff.png` | 1.696 ± 0.033 | 1.657 | 1.762 | 41.49 ± 1.13 |
+| `dify www.cypress.io.png www.cypress.io-2.png -o www.cypress.io-diff.png` | 1.193 ± 0.015 | 1.176 | 1.221 | 29.18 ± 0.67 |
 
 Ran on MacBook Pro (13-inch, 2019, Two Thunderbolt 3 ports), macOS Catalina 10.15.7.
 
