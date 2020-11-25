@@ -80,7 +80,7 @@ impl Cli {
                 matches,
                 options,
             }),
-            Err(f) => Err(anyhow!(f.to_string())),
+            Err(f) => Err(anyhow!(f)),
         }
     }
 
@@ -168,7 +168,7 @@ impl Cli {
     pub fn get_output_image_path(&self) -> String {
         self.matches
             .opt_str(SHORT_NAME_OUTPUT_IMAGE_PATH)
-            .unwrap_or_else(|| DEFAULT_PATH_OF_DIFF_IMAGE.to_string())
+            .unwrap_or_else(|| DEFAULT_PATH_OF_DIFF_IMAGE.to_owned())
     }
 
     pub fn get_threshold(&self) -> Result<f32> {
