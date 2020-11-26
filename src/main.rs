@@ -1,8 +1,5 @@
-mod cli;
-mod diff;
-
 use anyhow::Result;
-use cli::Cli;
+use dify::{cli::Cli, diff};
 
 fn main() -> Result<()> {
     let cli = Cli::new()?;

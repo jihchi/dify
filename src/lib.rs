@@ -1,9 +1,10 @@
 pub mod cli;
-pub mod yiq;
+pub mod diff;
+mod yiq;
 
 use image::{Pixel, RgbaImage};
 use std::cmp;
-pub use yiq::*;
+use yiq::*;
 
 fn get_diagonal_neighbours(x1: u32, y1: u32, width: u32, height: u32) -> ((u32, u32), (u32, u32)) {
     // (x0, y0)

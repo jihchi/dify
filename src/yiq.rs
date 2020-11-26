@@ -64,10 +64,6 @@ impl YIQ {
             delta
         }
     }
-
-    pub fn square_root_distance(&self, other: &Self) -> f32 {
-        self.squared_distance(other).sqrt()
-    }
 }
 
 #[cfg(test)]
@@ -98,50 +94,5 @@ mod tests {
             q: 0.1,
         };
         assert_eq!(a.squared_distance(&b), 0.0);
-    }
-
-    #[test]
-    fn test_squared_distance_not_same() {
-        let a = YIQ {
-            y: 0.5,
-            i: 0.1,
-            q: -0.1,
-        };
-        let b = YIQ {
-            y: 0.5,
-            i: -0.1,
-            q: 0.1,
-        };
-        assert_eq!(a.squared_distance(&b), 0.019_788);
-    }
-
-    #[test]
-    fn test_square_root_distance_same() {
-        let a = YIQ {
-            y: 0.5,
-            i: -0.1,
-            q: 0.1,
-        };
-        let b = YIQ {
-            y: 0.5,
-            i: -0.1,
-            q: 0.1,
-        };
-        assert_eq!(a.square_root_distance(&b), 0.0);
-    }
-
-    #[test]
-    fn test_square_root_distance_not_same() {
-        let a = YIQ {
-            y: 0.5,
-            i: 0.1,
-            q: -0.1,
-        };
-        let b = YIQ {
-            y: 0.5,
-            i: -0.1,
-            q: 0.1,
-        };
-        assert_eq!(a.square_root_distance(&b), 0.140_669_82);
     }
 }
