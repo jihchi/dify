@@ -2,7 +2,9 @@ use crate::cli;
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use dify::{antialiased, YIQ};
-use image::{io::Reader as ImageReader, GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba};
+use image::{
+    io::Reader as ImageReader, GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage,
+};
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
@@ -72,46 +74,10 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
         .red()));
     };
 
-    let threshold = MAX_YIQ_POSSIBLE_DELTA * params.threshold * params.threshold;
-    let (width, height) = left_dimensions;
-
-    let pixels = left_image.enumerate_pixels();
-
-    let results = pixels.map(|(x, y, left_pixel)| {
-        let result = {
-            if right_image.in_bounds(x, y) {
-                let right_pixel = right_image.get_pixel(x, y);
-
-                if left_pixel == right_pixel {
-                    DiffResult::Identical
-                } else {
-                    let left_pixel = YIQ::from_rgba(left_pixel);
-                    let right_pixel = YIQ::from_rgba(right_pixel);
-                    let delta = left_pixel.squared_distance(&right_pixel);
-
-                    if delta.abs() > threshold {
-                        if params.detect_anti_aliased_pixels
-                            && (antialiased(&left_image, x, y, width, height, &right_image)
-                                || antialiased(&right_image, x, y, width, height, &left_image))
-                        {
-                            DiffResult::AntiAliased
-                        } else {
-                            DiffResult::Different
-                        }
-                    } else {
-                        DiffResult::BelowThreshold
-                    }
-                }
-            } else {
-                DiffResult::OutOfBounds
-            }
-        };
-
-        (x, y, result)
-    });
+    let results = get_results(&left_image, &right_image, params);
 
     let diffs = results
-        .clone()
+        .iter()
         .fold(0, |acc, (_x, _y, result)| match result {
             DiffResult::Identical | DiffResult::BelowThreshold | DiffResult::AntiAliased => acc,
             DiffResult::Different | DiffResult::OutOfBounds => acc + 1,
@@ -121,7 +87,10 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
         let mut output_image = match params.output_image_base {
             Some(cli::OutputImageBase::LeftImage) => left_image.clone(),
             Some(cli::OutputImageBase::RightImage) => right_image.clone(),
-            None => ImageBuffer::new(width, height),
+            None => {
+                let (width, height) = left_dimensions;
+                ImageBuffer::new(width, height)
+            }
         };
 
         for (x, y, result) in results {
@@ -156,4 +125,49 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
     }
 
     Ok(None)
+}
+
+fn get_results(
+    left_image: &RgbaImage,
+    right_image: &RgbaImage,
+    params: &RunParams,
+) -> Vec<(u32, u32, DiffResult)> {
+    let threshold = MAX_YIQ_POSSIBLE_DELTA * params.threshold * params.threshold;
+    let pixels = left_image.enumerate_pixels();
+    let (width, height) = left_image.dimensions();
+
+    pixels
+        .map(|(x, y, left_pixel)| {
+            let result = {
+                if right_image.in_bounds(x, y) {
+                    let right_pixel = right_image.get_pixel(x, y);
+
+                    if left_pixel == right_pixel {
+                        DiffResult::Identical
+                    } else {
+                        let left_pixel = YIQ::from_rgba(left_pixel);
+                        let right_pixel = YIQ::from_rgba(right_pixel);
+                        let delta = left_pixel.squared_distance(&right_pixel);
+
+                        if delta.abs() > threshold {
+                            if params.detect_anti_aliased_pixels
+                                && (antialiased(&left_image, x, y, width, height, &right_image)
+                                    || antialiased(&right_image, x, y, width, height, &left_image))
+                            {
+                                DiffResult::AntiAliased
+                            } else {
+                                DiffResult::Different
+                            }
+                        } else {
+                            DiffResult::BelowThreshold
+                        }
+                    }
+                } else {
+                    DiffResult::OutOfBounds
+                }
+            };
+
+            (x, y, result)
+        })
+        .collect::<Vec<_>>()
 }
