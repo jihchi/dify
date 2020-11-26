@@ -32,7 +32,7 @@ dify left.jpg right.jpg
 
 ## Benchmarks
 
->  Test data is coming from [here](https://github.com/dmtrKovalenko/odiff/tree/main/images)
+> Test data is coming from [here](https://github.com/dmtrKovalenko/odiff/tree/main/images)
 
 ```
 $ hyperfine \
@@ -44,11 +44,11 @@ $ hyperfine \
   'dify www.cypress.io.png www.cypress.io-2.png -o www.cypress.io-diff.png'
 ```
 
-| Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
-|:---|---:|---:|---:|---:|
-| `dify tiger.jpg tiger-2.jpg -o tiger-diff.png` | 45.4 ± 0.6 | 44.3 | 47.2 | 1.00 |
-| `dify water-4k.png water-4k-2.png -o water-diff.png` | 1713.7 ± 11.9 | 1697.8 | 1733.8 | 37.75 ± 0.54 |
-| `dify www.cypress.io.png www.cypress.io-2.png -o www.cypress.io-diff.png` | 1257.7 ± 5.4 | 1246.1 | 1264.1 | 27.71 ± 0.37 |
+| Command                                                                   |    Mean [ms] | Min [ms] | Max [ms] |     Relative |
+| :------------------------------------------------------------------------ | -----------: | -------: | -------: | -----------: |
+| `dify tiger.jpg tiger-2.jpg -o tiger-diff.png`                            |   49.3 ± 0.8 |     48.2 |     52.3 |         1.00 |
+| `dify water-4k.png water-4k-2.png -o water-diff.png`                      | 2142.6 ± 4.0 |   2137.5 |   2149.2 | 43.46 ± 0.75 |
+| `dify www.cypress.io.png www.cypress.io-2.png -o www.cypress.io-diff.png` | 1618.9 ± 3.9 |   1613.4 |   1626.1 | 32.84 ± 0.57 |
 
 Ran on MacBook Pro (13-inch, 2019, Two Thunderbolt 3 ports), macOS Catalina 10.15.7.
 
