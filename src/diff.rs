@@ -171,43 +171,43 @@ fn get_results(
 mod tests {
     use super::*;
 
+    const RUN_PARAMS: RunParams = RunParams {
+        left: "",
+        right: "",
+        output: "",
+        threshold: 0.05,
+        output_image_base: None,
+        do_not_check_dimensions: true,
+        detect_anti_aliased_pixels: false,
+        blend_factor_of_unchanged_pixels: None,
+    };
+
     #[test]
     fn test_zero_width_height() {
-        let actual = get_results(
-            &RgbaImage::new(0, 0),
-            &RgbaImage::new(0, 0),
-            &RunParams {
-                left: "<left.img>",
-                right: "<right.img>",
-                output: "<output.img>",
-                threshold: 0.05,
-                output_image_base: None,
-                do_not_check_dimensions: true,
-                detect_anti_aliased_pixels: false,
-                blend_factor_of_unchanged_pixels: None,
-            },
-        );
-
+        let actual = get_results(&RgbaImage::new(0, 0), &RgbaImage::new(0, 0), &RUN_PARAMS);
         assert_eq!(Vec::<DiffResult>::new(), actual);
     }
 
     #[test]
-    fn test_1x1_empty() {
-        let actual = get_results(
-            &RgbaImage::new(1, 1),
-            &RgbaImage::new(1, 1),
-            &RunParams {
-                left: "<left.img>",
-                right: "<right.img>",
-                output: "<output.img>",
-                threshold: 0.05,
-                output_image_base: None,
-                do_not_check_dimensions: true,
-                detect_anti_aliased_pixels: false,
-                blend_factor_of_unchanged_pixels: None,
-            },
-        );
+    fn test_1_pixel() {
+        let actual = get_results(&RgbaImage::new(1, 1), &RgbaImage::new(1, 1), &RUN_PARAMS);
+        assert_eq!(vec![DiffResult::Identical(0, 0)], actual);
+    }
 
-        assert_eq!(vec![DiffResult::Identical(0, 0),], actual);
+    #[test]
+    fn test_1_different() {
+        let mut left = RgbaImage::new(2, 2);
+        left.put_pixel(1, 1, YELLOW_PIXEL);
+        let actual = get_results(&left, &RgbaImage::new(2, 2), &RUN_PARAMS);
+
+        assert_eq!(
+            vec![
+                DiffResult::Identical(0, 0),
+                DiffResult::Identical(1, 0),
+                DiffResult::Identical(0, 1),
+                DiffResult::Different(1, 1),
+            ],
+            actual
+        );
     }
 }
