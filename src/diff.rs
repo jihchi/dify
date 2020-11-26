@@ -12,12 +12,26 @@ const YELLOW_PIXEL: Rgba<u8> = Rgba([255, 255, 0, 255]);
 
 type LoadedImage = Result<ImageBuffer<Rgba<u8>, Vec<u8>>>;
 
+#[derive(Debug)]
 enum DiffResult {
-    Identical,
-    BelowThreshold,
-    Different,
-    OutOfBounds,
-    AntiAliased,
+    Identical(u32, u32),
+    BelowThreshold(u32, u32),
+    Different(u32, u32),
+    OutOfBounds(u32, u32),
+    AntiAliased(u32, u32),
+}
+
+impl PartialEq for DiffResult {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Identical(x, y), Self::Identical(a, b)) => x == a && y == b,
+            (Self::BelowThreshold(x, y), Self::BelowThreshold(a, b)) => x == a && y == b,
+            (Self::Different(x, y), Self::Different(a, b)) => x == a && y == b,
+            (Self::OutOfBounds(x, y), Self::OutOfBounds(a, b)) => x == a && y == b,
+            (Self::AntiAliased(x, y), Self::AntiAliased(a, b)) => x == a && y == b,
+            _ => false,
+        }
+    }
 }
 
 pub struct RunParams<'a> {
@@ -76,12 +90,12 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
 
     let results = get_results(&left_image, &right_image, params);
 
-    let diffs = results
-        .iter()
-        .fold(0, |acc, (_x, _y, result)| match result {
-            DiffResult::Identical | DiffResult::BelowThreshold | DiffResult::AntiAliased => acc,
-            DiffResult::Different | DiffResult::OutOfBounds => acc + 1,
-        });
+    let diffs = results.iter().fold(0, |acc, result| match result {
+        DiffResult::Identical(_, _)
+        | DiffResult::BelowThreshold(_, _)
+        | DiffResult::AntiAliased(_, _) => acc,
+        DiffResult::Different(_, _) | DiffResult::OutOfBounds(_, _) => acc + 1,
+    });
 
     if diffs > 0 {
         let mut output_image = match params.output_image_base {
@@ -93,9 +107,9 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
             }
         };
 
-        for (x, y, result) in results {
+        for result in results {
             match result {
-                DiffResult::Identical | DiffResult::BelowThreshold => {
+                DiffResult::Identical(x, y) | DiffResult::BelowThreshold(x, y) => {
                     if let Some(alpha) = params.blend_factor_of_unchanged_pixels {
                         let left_pixel = left_image.get_pixel(x, y);
                         let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
@@ -106,10 +120,10 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
                         output_image.put_pixel(x, y, Rgba([color, color, color, u8::MAX]));
                     }
                 }
-                DiffResult::Different | DiffResult::OutOfBounds => {
+                DiffResult::Different(x, y) | DiffResult::OutOfBounds(x, y) => {
                     output_image.put_pixel(x, y, RED_PIXEL);
                 }
-                DiffResult::AntiAliased => {
+                DiffResult::AntiAliased(x, y) => {
                     output_image.put_pixel(x, y, YELLOW_PIXEL);
                 }
             }
@@ -131,43 +145,84 @@ fn get_results(
     left_image: &RgbaImage,
     right_image: &RgbaImage,
     params: &RunParams,
-) -> Vec<(u32, u32, DiffResult)> {
+) -> Vec<DiffResult> {
     let threshold = MAX_YIQ_POSSIBLE_DELTA * params.threshold * params.threshold;
     let pixels = left_image.enumerate_pixels();
     let (width, height) = left_image.dimensions();
 
     pixels
         .map(|(x, y, left_pixel)| {
-            let result = {
-                if right_image.in_bounds(x, y) {
-                    let right_pixel = right_image.get_pixel(x, y);
+            if right_image.in_bounds(x, y) {
+                let right_pixel = right_image.get_pixel(x, y);
 
-                    if left_pixel == right_pixel {
-                        DiffResult::Identical
-                    } else {
-                        let left_pixel = YIQ::from_rgba(left_pixel);
-                        let right_pixel = YIQ::from_rgba(right_pixel);
-                        let delta = left_pixel.squared_distance(&right_pixel);
-
-                        if delta.abs() > threshold {
-                            if params.detect_anti_aliased_pixels
-                                && (antialiased(&left_image, x, y, width, height, &right_image)
-                                    || antialiased(&right_image, x, y, width, height, &left_image))
-                            {
-                                DiffResult::AntiAliased
-                            } else {
-                                DiffResult::Different
-                            }
-                        } else {
-                            DiffResult::BelowThreshold
-                        }
-                    }
+                if left_pixel == right_pixel {
+                    DiffResult::Identical(x, y)
                 } else {
-                    DiffResult::OutOfBounds
-                }
-            };
+                    let left_pixel = YIQ::from_rgba(left_pixel);
+                    let right_pixel = YIQ::from_rgba(right_pixel);
+                    let delta = left_pixel.squared_distance(&right_pixel);
 
-            (x, y, result)
+                    if delta.abs() > threshold {
+                        if params.detect_anti_aliased_pixels
+                            && (antialiased(&left_image, x, y, width, height, &right_image)
+                                || antialiased(&right_image, x, y, width, height, &left_image))
+                        {
+                            DiffResult::AntiAliased(x, y)
+                        } else {
+                            DiffResult::Different(x, y)
+                        }
+                    } else {
+                        DiffResult::BelowThreshold(x, y)
+                    }
+                }
+            } else {
+                DiffResult::OutOfBounds(x, y)
+            }
         })
         .collect::<Vec<_>>()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_zero_width_height() {
+        let actual = get_results(
+            &RgbaImage::new(0, 0),
+            &RgbaImage::new(0, 0),
+            &RunParams {
+                left: "<left.img>",
+                right: "<right.img>",
+                output: "<output.img>",
+                threshold: 0.05,
+                output_image_base: None,
+                do_not_check_dimensions: true,
+                detect_anti_aliased_pixels: false,
+                blend_factor_of_unchanged_pixels: None,
+            },
+        );
+
+        assert_eq!(Vec::<DiffResult>::new(), actual);
+    }
+
+    #[test]
+    fn test_1x1_empty() {
+        let actual = get_results(
+            &RgbaImage::new(1, 1),
+            &RgbaImage::new(1, 1),
+            &RunParams {
+                left: "<left.img>",
+                right: "<right.img>",
+                output: "<output.img>",
+                threshold: 0.05,
+                output_image_base: None,
+                do_not_check_dimensions: true,
+                detect_anti_aliased_pixels: false,
+                blend_factor_of_unchanged_pixels: None,
+            },
+        );
+
+        assert_eq!(vec![DiffResult::Identical(0, 0),], actual);
+    }
 }
