@@ -96,7 +96,8 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
                         let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
                         let rgba_a = left_pixel.channels()[3] as f32;
                         let color =
-                            super::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0) as u8;
+                            super::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0)
+                                as u8;
 
                         output_image.put_pixel(x, y, Rgba([color, color, color, u8::MAX]));
                     }
