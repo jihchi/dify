@@ -10,28 +10,13 @@ const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
 const YELLOW_PIXEL: Rgba<u8> = Rgba([255, 255, 0, 255]);
 
-type LoadedImage = Result<ImageBuffer<Rgba<u8>, Vec<u8>>>;
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum DiffResult {
     Identical(u32, u32),
     BelowThreshold(u32, u32),
     Different(u32, u32),
     OutOfBounds(u32, u32),
     AntiAliased(u32, u32),
-}
-
-impl PartialEq for DiffResult {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Identical(x, y), Self::Identical(a, b)) => x == a && y == b,
-            (Self::BelowThreshold(x, y), Self::BelowThreshold(a, b)) => x == a && y == b,
-            (Self::Different(x, y), Self::Different(a, b)) => x == a && y == b,
-            (Self::OutOfBounds(x, y), Self::OutOfBounds(a, b)) => x == a && y == b,
-            (Self::AntiAliased(x, y), Self::AntiAliased(a, b)) => x == a && y == b,
-            _ => false,
-        }
-    }
 }
 
 pub struct RunParams<'a> {
@@ -46,7 +31,7 @@ pub struct RunParams<'a> {
 }
 
 pub fn run(params: &RunParams) -> Result<Option<u32>> {
-    let (left_image, right_image): (LoadedImage, LoadedImage) = rayon::join(
+    let (left_image, right_image): (Result<RgbaImage>, Result<RgbaImage>) = rayon::join(
         || {
             Ok(ImageReader::open(params.left)
                 .with_context(|| {
