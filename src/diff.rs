@@ -85,7 +85,7 @@ pub fn run(params: &RunParams) -> Result<Option<u32>> {
     if diffs > 0 {
         let mut output_image = match params.output_image_base {
             Some(cli::OutputImageBase::LeftImage) => left_image.clone(),
-            Some(cli::OutputImageBase::RightImage) => right_image.clone(),
+            Some(cli::OutputImageBase::RightImage) => right_image,
             None => {
                 let (width, height) = left_dimensions;
                 ImageBuffer::new(width, height)
