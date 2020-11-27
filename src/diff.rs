@@ -132,8 +132,10 @@ pub fn get_results(
     let pixels = left_image.enumerate_pixels();
     let (width, height) = left_image.dimensions();
 
-    pixels
-        .map(|(x, y, left_pixel)| {
+    let mut results = Vec::with_capacity((width * height) as usize);
+
+    pixels.for_each(|(x, y, left_pixel)| {
+        let result = {
             if right_image.in_bounds(x, y) {
                 let right_pixel = right_image.get_pixel(x, y);
 
@@ -160,8 +162,12 @@ pub fn get_results(
             } else {
                 DiffResult::OutOfBounds(x, y)
             }
-        })
-        .collect::<Vec<_>>()
+        };
+
+        results.push(result)
+    });
+
+    results
 }
 
 #[cfg(test)]
