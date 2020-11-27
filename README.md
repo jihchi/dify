@@ -46,9 +46,9 @@ $ hyperfine \
 
 | Command                                                                   |    Mean [ms] | Min [ms] | Max [ms] |     Relative |
 | :------------------------------------------------------------------------ | -----------: | -------: | -------: | -----------: |
-| `dify tiger.jpg tiger-2.jpg -o tiger-diff.png`                            |   49.3 ± 0.8 |     48.2 |     52.3 |         1.00 |
-| `dify water-4k.png water-4k-2.png -o water-diff.png`                      | 2142.6 ± 4.0 |   2137.5 |   2149.2 | 43.46 ± 0.75 |
-| `dify www.cypress.io.png www.cypress.io-2.png -o www.cypress.io-diff.png` | 1618.9 ± 3.9 |   1613.4 |   1626.1 | 32.84 ± 0.57 |
+| `dify tiger.jpg tiger-2.jpg -o tiger-diff.png`                            |   46.6 ± 1.0 |     45.4 |     52.3 |         1.00 |
+| `dify water-4k.png water-4k-2.png -o water-diff.png`                      | 1960.9 ± 8.7 |   1950.0 |   1978.6 | 42.06 ± 0.95 |
+| `dify www.cypress.io.png www.cypress.io-2.png -o www.cypress.io-diff.png` | 1440.5 ± 4.9 |   1431.1 |   1448.4 | 30.90 ± 0.69 |
 
 Ran on MacBook Pro (13-inch, 2019, Two Thunderbolt 3 ports), macOS Catalina 10.15.7.
 
