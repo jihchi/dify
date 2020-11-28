@@ -199,18 +199,10 @@ mod tests {
 
     #[test]
     fn test_1_different() {
-        let mut left = RgbaImage::new(2, 2);
-        left.put_pixel(1, 1, YELLOW_PIXEL);
-        let actual = get_results(&left, &RgbaImage::new(2, 2), &RUN_PARAMS);
+        let mut left = RgbaImage::new(1, 1);
+        left.put_pixel(0, 0, YELLOW_PIXEL);
+        let actual = get_results(&left, &RgbaImage::new(1, 1), &RUN_PARAMS);
 
-        assert_eq!(
-            vec![
-                DiffResult::Identical(0, 0),
-                DiffResult::Identical(1, 0),
-                DiffResult::Identical(0, 1),
-                DiffResult::Different(1, 1),
-            ],
-            actual
-        );
+        assert_eq!(vec![DiffResult::Different(0, 0)], actual);
     }
 }
