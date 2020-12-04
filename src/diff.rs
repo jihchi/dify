@@ -1,6 +1,7 @@
 use super::{antialiased, cli, yiq::YIQ};
 use anyhow::{anyhow, Context, Result};
 use colored::*;
+use crossbeam::thread;
 use image::{
     io::Reader as ImageReader, GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage,
 };
@@ -29,37 +30,35 @@ pub struct RunParams<'a> {
     pub blend_factor_of_unchanged_pixels: Option<f32>,
 }
 
+fn read_image(path: &str, which: &str) -> Result<RgbaImage> {
+    let image = ImageReader::open(path)
+        .with_context(|| format!("failed to open {} image \"{}\"", which, path.magenta()).red())?
+        .decode()
+        .with_context(|| format!("failed to decode {} image \"{}\"", which, path.magenta()).red())?
+        .into_rgba();
+
+    Ok(image)
+}
+
 pub fn run(params: &RunParams) -> Result<Option<u32>> {
-    let (left_image, right_image): (Result<RgbaImage>, Result<RgbaImage>) = rayon::join(
-        || {
-            Ok(ImageReader::open(params.left)
-                .with_context(|| {
-                    format!("failed to open left image \"{}\"", params.left.magenta()).red()
-                })?
-                .decode()
-                .with_context(|| {
-                    format!("failed to decode left image \"{}\"", params.left.magenta()).red()
-                })?
-                .into_rgba())
-        },
-        || {
-            Ok(ImageReader::open(params.right)
-                .with_context(|| {
-                    format!("failed to open right image \"{}\"", params.right.magenta()).red()
-                })?
-                .decode()
-                .with_context(|| {
-                    format!(
-                        "failed to decode right image \"{}\"",
-                        params.right.magenta()
-                    )
-                    .red()
-                })?
-                .into_rgba())
-        },
-    );
+    let (left_image, right_image): (Result<RgbaImage>, Result<RgbaImage>) =
+        thread::scope(|scoped| {
+            let left_handle = scoped
+                .spawn(|_| read_image(params.left, "left"))
+                .join()
+                .unwrap();
+
+            let right_handle = scoped
+                .spawn(|_| read_image(params.right, "right"))
+                .join()
+                .unwrap();
+
+            (left_handle, right_handle)
+        })
+        .unwrap();
 
     let (left_image, right_image) = (left_image?, right_image?);
+
     let left_dimensions = left_image.dimensions();
     let right_dimensions = right_image.dimensions();
 
