@@ -29,34 +29,20 @@ pub struct RunParams<'a> {
     pub blend_factor_of_unchanged_pixels: Option<f32>,
 }
 
+fn open_and_decode_image(path: &str, which: &str) -> Result<RgbaImage> {
+    let image = ImageReader::open(path)
+        .with_context(|| format!("failed to open {} image \"{}\"", which, path.magenta()).red())?
+        .decode()
+        .with_context(|| format!("failed to decode {} image \"{}\"", which, path.magenta()).red())?
+        .into_rgba();
+
+    Ok(image)
+}
+
 pub fn run(params: &RunParams) -> Result<Option<u32>> {
     let (left_image, right_image): (Result<RgbaImage>, Result<RgbaImage>) = rayon::join(
-        || {
-            Ok(ImageReader::open(params.left)
-                .with_context(|| {
-                    format!("failed to open left image \"{}\"", params.left.magenta()).red()
-                })?
-                .decode()
-                .with_context(|| {
-                    format!("failed to decode left image \"{}\"", params.left.magenta()).red()
-                })?
-                .into_rgba())
-        },
-        || {
-            Ok(ImageReader::open(params.right)
-                .with_context(|| {
-                    format!("failed to open right image \"{}\"", params.right.magenta()).red()
-                })?
-                .decode()
-                .with_context(|| {
-                    format!(
-                        "failed to decode right image \"{}\"",
-                        params.right.magenta()
-                    )
-                    .red()
-                })?
-                .into_rgba())
-        },
+        || open_and_decode_image(params.left, "left"),
+        || open_and_decode_image(params.right, "right"),
     );
 
     let (left_image, right_image) = (left_image?, right_image?);
