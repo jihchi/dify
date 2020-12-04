@@ -28,7 +28,7 @@ harness = false
 criterion = "0.3"
 
 [dependencies]
-image = "0.23.11"
+image = "0.23.12"
 getopts = "0.2"
 anyhow = "1.0"
 colored = "2.0.0"

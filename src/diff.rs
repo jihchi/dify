@@ -1,9 +1,8 @@
 use super::{antialiased, cli, yiq::YIQ};
 use anyhow::{anyhow, Context, Result};
 use colored::*;
-use image::{
-    io::Reader as ImageReader, GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage,
-};
+use image::io::Reader as ImageIoReader;
+use image::{GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage};
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
@@ -30,11 +29,11 @@ pub struct RunParams<'a> {
 }
 
 fn open_and_decode_image(path: &str, which: &str) -> Result<RgbaImage> {
-    let image = ImageReader::open(path)
+    let image = ImageIoReader::open(path)
         .with_context(|| format!("failed to open {} image \"{}\"", which, path.magenta()).red())?
         .decode()
         .with_context(|| format!("failed to decode {} image \"{}\"", which, path.magenta()).red())?
-        .into_rgba();
+        .to_rgba8();
 
     Ok(image)
 }
