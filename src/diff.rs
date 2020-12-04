@@ -43,17 +43,10 @@ fn read_image(path: &str, which: &str) -> Result<RgbaImage> {
 pub fn run(params: &RunParams) -> Result<Option<u32>> {
     let (left_image, right_image): (Result<RgbaImage>, Result<RgbaImage>) =
         thread::scope(|scoped| {
-            let left_handle = scoped
-                .spawn(|_| read_image(params.left, "left"))
-                .join()
-                .unwrap();
+            let left_handle = scoped.spawn(|_| read_image(params.left, "left"));
+            let right_handle = scoped.spawn(|_| read_image(params.right, "right"));
 
-            let right_handle = scoped
-                .spawn(|_| read_image(params.right, "right"))
-                .join()
-                .unwrap();
-
-            (left_handle, right_handle)
+            (left_handle.join().unwrap(), right_handle.join().unwrap())
         })
         .unwrap();
 
