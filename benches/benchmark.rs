@@ -7,7 +7,7 @@ fn get_image(path: &str) -> RgbaImage {
         .unwrap()
         .decode()
         .unwrap()
-        .into_rgba()
+        .into_rgba8()
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
