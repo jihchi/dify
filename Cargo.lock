@@ -252,7 +252,7 @@ dependencies = [
 
 [[package]]
 name = "dify"
-version = "0.3.5-alpha.0"
+version = "0.3.5"
 dependencies = [
  "anyhow",
  "colored",
