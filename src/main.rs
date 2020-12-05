@@ -34,7 +34,7 @@ fn main() -> Result<()> {
     })
     .map(|code| {
         if let Some(code) = code {
-            std::process::exit(code as i32)
+            std::process::exit(code)
         }
     })
 }

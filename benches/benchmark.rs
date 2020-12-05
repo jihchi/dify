@@ -26,21 +26,48 @@ fn criterion_benchmark(c: &mut Criterion) {
         let left_image = get_image("./benches/fixtures/tiger.jpg");
         let right_image = get_image("./benches/fixtures/tiger-2.jpg");
 
-        b.iter(|| diff::get_results(&left_image, &right_image, &default_run_params))
+        b.iter(|| {
+            diff::get_results(
+                &left_image,
+                &right_image,
+                default_run_params.threshold,
+                default_run_params.do_not_check_dimensions,
+                default_run_params.blend_factor_of_unchanged_pixels,
+                &default_run_params.output_image_base,
+            )
+        })
     });
 
     c.bench_function("8400 × 4725 pixels", |b| {
         let left_image = get_image("./benches/fixtures/water-4k.png");
         let right_image = get_image("./benches/fixtures/water-4k-2.png");
 
-        b.iter(|| diff::get_results(&left_image, &right_image, &default_run_params))
+        b.iter(|| {
+            diff::get_results(
+                &left_image,
+                &right_image,
+                default_run_params.threshold,
+                default_run_params.do_not_check_dimensions,
+                default_run_params.blend_factor_of_unchanged_pixels,
+                &default_run_params.output_image_base,
+            )
+        })
     });
 
     c.bench_function("3446 × 10728 pixels", |b| {
         let left_image = get_image("./benches/fixtures/www.cypress.io.png");
         let right_image = get_image("./benches/fixtures/www.cypress.io-2.png");
 
-        b.iter(|| diff::get_results(&left_image, &right_image, &default_run_params))
+        b.iter(|| {
+            diff::get_results(
+                &left_image,
+                &right_image,
+                default_run_params.threshold,
+                default_run_params.do_not_check_dimensions,
+                default_run_params.blend_factor_of_unchanged_pixels,
+                &default_run_params.output_image_base,
+            )
+        })
     });
 }
 
