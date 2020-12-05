@@ -216,4 +216,3 @@ mod tests {
         assert_eq!(Some((1, expected_image)), actual);
     }
 }
-
