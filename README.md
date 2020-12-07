@@ -24,6 +24,15 @@
 
 Download the binaries for your platform from [release](https://github.com/jihchi/dify/releases) page.
 
+#### Node.js ecosystem
+
+Please refer to [`dify-bin`](https://github.com/jihchi/dify-bin) npm package, it is a node.js wrapper for dify executable file:
+
+```sh
+$ npm install -g dify-bin # or `yarn global add dify-bin`
+$ dify --help
+```
+
 ## Usage
 
 ```
