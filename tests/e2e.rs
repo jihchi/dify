@@ -2,10 +2,7 @@ use assert_cmd::Command;
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::NamedTempFile;
 use predicates::prelude::*;
-
-const LEFT: &str = "./benches/fixtures/tiger.jpg";
-const RIGHT: &str = "./benches/fixtures/tiger-2.jpg";
-const OUTPUT: &str = "./benches/fixtures/tiger-diff.png";
+use std::fs;
 
 #[test]
 fn test_sanity() {
@@ -46,7 +43,9 @@ Caused by:
 #[test]
 fn test_right_does_not_exist() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
-    let assert = cmd.arg(LEFT).arg("<right>");
+    let assert = cmd
+        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
+        .arg("<right>");
 
     assert.assert().stderr(
         r#"Error: failed to open right image "<right>"
@@ -60,7 +59,9 @@ Caused by:
 #[test]
 fn test_identical_image() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
-    let assert = cmd.arg(LEFT).arg(LEFT);
+    let assert = cmd
+        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
+        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap());
 
     assert.assert().success();
 }
@@ -68,7 +69,9 @@ fn test_identical_image() {
 #[test]
 fn test_different_image() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
-    let assert = cmd.arg(LEFT).arg(RIGHT);
+    let assert = cmd
+        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
+        .arg(fs::canonicalize("./benches/fixtures/tiger-2.jpg").unwrap());
 
     assert.assert().code(107);
 }
@@ -78,13 +81,15 @@ fn test_output_image() {
     let temp = NamedTempFile::new("tiger-diff.png").unwrap();
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
-        .arg(LEFT)
-        .arg(RIGHT)
+        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
+        .arg(fs::canonicalize("./benches/fixtures/tiger-2.jpg").unwrap())
         .arg("--output")
         .arg(temp.path().display().to_string());
 
     assert.assert().failure();
-    temp.assert(predicate::path::eq_file(std::path::Path::new(OUTPUT)));
+    temp.assert(predicate::path::eq_file(
+        fs::canonicalize("./benches/fixtures/tiger-diff.png").unwrap(),
+    ));
 
     temp.close().unwrap();
 }
@@ -94,15 +99,15 @@ fn test_output_image_4k() {
     let temp = NamedTempFile::new("water-4k-diff.png").unwrap();
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
-        .arg("./benches/fixtures/water-4k.png")
-        .arg("./benches/fixtures/water-4k-2.png")
+        .arg(fs::canonicalize("./benches/fixtures/water-4k.png").unwrap())
+        .arg(fs::canonicalize("./benches/fixtures/water-4k-2.png").unwrap())
         .arg("--output")
         .arg(temp.path().display().to_string());
 
     assert.assert().failure();
-    temp.assert(predicate::path::eq_file(std::path::Path::new(
-        "./benches/fixtures/water-4k-diff.png",
-    )));
+    temp.assert(predicate::path::eq_file(
+        fs::canonicalize("./benches/fixtures/water-4k-diff.png").unwrap(),
+    ));
 
     temp.close().unwrap();
 }
@@ -112,15 +117,15 @@ fn test_output_image_web_page() {
     let temp = NamedTempFile::new("www.cypress.io-diff.png").unwrap();
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
-        .arg("./benches/fixtures/www.cypress.io.png")
-        .arg("./benches/fixtures/www.cypress.io-2.png")
+        .arg(fs::canonicalize("./benches/fixtures/www.cypress.io.png").unwrap())
+        .arg(fs::canonicalize("./benches/fixtures/www.cypress.io-2.png").unwrap())
         .arg("--output")
         .arg(temp.path().display().to_string());
 
     assert.assert().failure();
-    temp.assert(predicate::path::eq_file(std::path::Path::new(
-        "./benches/fixtures/www.cypress.io-diff.png",
-    )));
+    temp.assert(predicate::path::eq_file(
+        fs::canonicalize("./benches/fixtures/www.cypress.io-diff.png").unwrap(),
+    ));
 
     temp.close().unwrap();
 }
