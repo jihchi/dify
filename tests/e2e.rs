@@ -2,6 +2,7 @@ use assert_cmd::Command;
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::NamedTempFile;
 use predicates::prelude::*;
+use std::env::consts;
 use std::fs;
 use std::path;
 
@@ -39,9 +40,13 @@ fn test_left_does_not_exist() {
         r#"Error: failed to open left image "{}"
 
 Caused by:
-    No such file or directory (os error 2)
+    {} (os error 2)
 "#,
-        left.display().to_string()
+        left.display().to_string(),
+        match consts::OS {
+            "windows" => "The system cannot find the file specified.",
+            "linux" | "macos" | _ => "No such file or directory",
+        }
     ));
 }
 
@@ -57,9 +62,13 @@ fn test_right_does_not_exist() {
         r#"Error: failed to open right image "{}"
 
 Caused by:
-    No such file or directory (os error 2)
+    {} (os error 2)
 "#,
-        right.display().to_string()
+        right.display().to_string(),
+        match consts::OS {
+            "windows" => "The system cannot find the file specified.",
+            "linux" | "macos" | _ => "No such file or directory",
+        }
     ));
 }
 
