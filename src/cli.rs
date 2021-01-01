@@ -151,7 +151,7 @@ impl Cli {
                     .red()
                 })
                 .and_then(|n| {
-                    if n >= 0.0 && n <= 1.0 {
+                    if (0.0..=1.0).contains(&n) {
                         Ok(Some(n))
                     } else {
                         Err(anyhow!(format!(
