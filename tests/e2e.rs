@@ -89,7 +89,10 @@ fn test_different_image() {
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/tiger-2.jpg").unwrap());
 
-    assert.assert().code(107);
+    assert.assert().code(match consts::OS {
+        "windows" => 7787,
+        "linux" | "macos" | _ => 107,
+    });
 }
 
 #[test]
