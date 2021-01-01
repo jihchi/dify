@@ -19,7 +19,7 @@ fn test_left_argument_is_missing() {
 #[test]
 fn test_right_argument_is_missing() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
-    let assert = cmd.arg("<left>");
+    let assert = cmd.arg(fs::canonicalize("./nonexistent-left.file").unwrap());
 
     assert
         .assert()
@@ -29,7 +29,9 @@ fn test_right_argument_is_missing() {
 #[test]
 fn test_left_does_not_exist() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
-    let assert = cmd.arg("<left>").arg("<right>");
+    let assert = cmd
+        .arg(fs::canonicalize("./nonexistent-left.file").unwrap())
+        .arg(fs::canonicalize("./nonexistent-right.file").unwrap());
 
     assert.assert().stderr(
         r#"Error: failed to open left image "<left>"
@@ -45,7 +47,7 @@ fn test_right_does_not_exist() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
-        .arg("<right>");
+        .arg(fs::canonicalize("./nonexistent-right.file").unwrap());
 
     assert.assert().stderr(
         r#"Error: failed to open right image "<right>"
