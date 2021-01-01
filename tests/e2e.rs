@@ -3,6 +3,7 @@ use assert_fs::assert::PathAssert;
 use assert_fs::fixture::NamedTempFile;
 use predicates::prelude::*;
 use std::fs;
+use std::path;
 
 #[test]
 fn test_sanity() {
@@ -19,7 +20,7 @@ fn test_left_argument_is_missing() {
 #[test]
 fn test_right_argument_is_missing() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
-    let assert = cmd.arg(fs::canonicalize("./nonexistent-left.file").unwrap());
+    let assert = cmd.arg(path::PathBuf::from("./nonexistent-left.file"));
 
     assert
         .assert()
@@ -29,33 +30,37 @@ fn test_right_argument_is_missing() {
 #[test]
 fn test_left_does_not_exist() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
+    let left = path::PathBuf::from("./nonexistent-left.file");
     let assert = cmd
-        .arg(fs::canonicalize("./nonexistent-left.file").unwrap())
-        .arg(fs::canonicalize("./nonexistent-right.file").unwrap());
+        .arg(&left)
+        .arg(path::PathBuf::from("./nonexistent-right.file"));
 
-    assert.assert().stderr(
-        r#"Error: failed to open left image "<left>"
+    assert.assert().stderr(format!(
+        r#"Error: failed to open left image "{}"
 
 Caused by:
     No such file or directory (os error 2)
 "#,
-    );
+        left.display().to_string()
+    ));
 }
 
 #[test]
 fn test_right_does_not_exist() {
     let mut cmd = Command::cargo_bin("dify").unwrap();
+    let right = path::PathBuf::from("./nonexistent-right.file");
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
-        .arg(fs::canonicalize("./nonexistent-right.file").unwrap());
+        .arg(&right);
 
-    assert.assert().stderr(
-        r#"Error: failed to open right image "<right>"
+    assert.assert().stderr(format!(
+        r#"Error: failed to open right image "{}"
 
 Caused by:
     No such file or directory (os error 2)
 "#,
-    );
+        right.display().to_string()
+    ));
 }
 
 #[test]
