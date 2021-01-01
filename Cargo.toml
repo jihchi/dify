@@ -26,6 +26,9 @@ harness = false
 
 [dev-dependencies]
 criterion = "0.3"
+assert_cmd = "1.0.2"
+assert_fs = "1.0.0"
+predicates = "1.0.6"
 
 [dependencies]
 image = "0.23.12"
