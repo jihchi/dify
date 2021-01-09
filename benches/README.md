@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-```
+```sh
 cargo bench
 ```
 
