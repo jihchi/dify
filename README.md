@@ -5,6 +5,7 @@
 > A fast pixel-by-pixel image comparison tool
 
 [![Workflows - CI][workflows-ci-shield]][workflows-ci-url]
+[![crates.io][crates-io-shield]][crates-io-url]
 
 ## Features
 
@@ -90,3 +91,5 @@ Distributed under the MIT License. See [`LICENSE`](./LICENSE.md) for more inform
 
 [workflows-ci-shield]: https://github.com/jihchi/dify/workflows/CI/badge.svg
 [workflows-ci-url]: https://github.com/jihchi/dify/actions?query=workflow%3ACI
+[crates-io-shield]: https://img.shields.io/crates/v/dify.svg
+[crates-io-url]: https://crates.io/crates/dify
