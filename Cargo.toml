@@ -10,7 +10,7 @@ readme = "README.md"
 license-file = "LICENSE.md"
 edition = "2018"
 include = [
-  "./src/*.rs",
+  "src/**/*.rs",
   "Cargo.toml",
   "README.md",
   "LICENSE.md",
@@ -33,6 +33,7 @@ bench = false
 
 [[bench]]
 name = "benchmark"
+path = "./benches/benchmark.rs"
 harness = false
 
 [dev-dependencies]
