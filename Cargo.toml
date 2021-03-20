@@ -1,9 +1,14 @@
 [package]
 name = "dify"
 version = "0.3.6-alpha.0"
+description = "A fast pixel-by-pixel image comparison tool in Rust"
+homepage = "https://github.com/jihchi/dify"
+documentation = "https://docs.rs/dify"
+repository = "https://github.com/jihchi/dify.git"
+readme = "README.md"
 authors = ["jihchi <achi@987.tw>"]
+license = "MIT OR Apache-2.0"
 edition = "2018"
-publish = false
 
 [package.metadata.release]
 pre-release-commit-message = "Bump version to {{version}}"
