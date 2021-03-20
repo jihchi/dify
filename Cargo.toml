@@ -1,14 +1,20 @@
 [package]
 name = "dify"
+authors = ["Jihchi Lee <achi@987.tw>"]
 version = "0.3.6-alpha.0"
 description = "A fast pixel-by-pixel image comparison tool in Rust"
 homepage = "https://github.com/jihchi/dify"
 documentation = "https://docs.rs/dify"
 repository = "https://github.com/jihchi/dify.git"
 readme = "README.md"
-authors = ["jihchi <achi@987.tw>"]
-license = "MIT OR Apache-2.0"
+license-file = "LICENSE.md"
 edition = "2018"
+include = [
+  "./src/*.rs",
+  "Cargo.toml",
+  "README.md",
+  "LICENSE.md",
+]
 
 [package.metadata.release]
 pre-release-commit-message = "Bump version to {{version}}"
