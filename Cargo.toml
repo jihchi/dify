@@ -20,8 +20,8 @@ include = [
 pre-release-commit-message = "Bump version to {{version}}"
 
 ### BEGIN
-# Fix an issuer where `cargo bench -- --save-baseline` does not work.
-# For more details, please see: https://bheisler.github.io/criterion.rs/book/faq.html#cargo-bench-gives-unrecognized-option-errors-for-valid-command-line-options
+# Fix an issue where `cargo bench -- --save-baseline` does not work.
+# For more details, please see https://bheisler.github.io/criterion.rs/book/faq.html#cargo-bench-gives-unrecognized-option-errors-for-valid-command-line-options
 [[bin]]
 name = "dify"
 path = "src/main.rs"
