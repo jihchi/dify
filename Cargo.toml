@@ -37,14 +37,14 @@ path = "./benches/benchmark.rs"
 harness = false
 
 [dev-dependencies]
-criterion = "0.3"
-assert_cmd = "1.0.2"
-assert_fs = "1.0.0"
-predicates = "1.0.6"
+criterion = "0.3.4"
+assert_cmd = "1.0.3"
+assert_fs = "1.0.1"
+predicates = "1.0.7"
 
 [dependencies]
-image = "0.23.12"
-getopts = "0.2"
-anyhow = "1.0"
+image = "0.23.14"
+getopts = "0.2.21"
+anyhow = "1.0.40"
 colored = "2.0.0"
 rayon = "1.5.0"
