@@ -24,7 +24,7 @@
 
 | expected                 | actual                 | diff                      |
 | ------------------------ | ---------------------- | ------------------------- |
-| ![expected](demo/4a.png) | ![actual](demo/4b.png) | ![diff](images/4diff.png) |
+| ![expected](demo/4a.png) | ![actual](demo/4b.png) | ![diff](demo/4diff.png) |
 
 > The expected and actual images are from [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch/tree/master/test/fixtures)
 
