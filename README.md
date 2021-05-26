@@ -1,8 +1,11 @@
-<h1 align="center">
-  <a href="https://github.com/jihchi/dify"><img src="logo.png" alt="Dify Logo" /></a>
-</h1>
-
-> A fast pixel-by-pixel image comparison tool
+<div align="center">
+  <a href="https://github.com/jihchi/dify">
+    <img src="logo.png" alt="Dify Logo" /></a>
+  <h1>Dify</h1>
+    <p>
+      <b>A fast pixel-by-pixel image comparison tool in Rust</b>
+    </p>
+</div>
 
 [![Workflows - CI][workflows-ci-shield]][workflows-ci-url]
 [![crates.io][crates-io-shield]][crates-io-url]
