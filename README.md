@@ -26,7 +26,7 @@
 | ------------------------ | ---------------------- | ------------------------- |
 | ![expected](demo/4a.png) | ![actual](demo/4b.png) | ![diff](demo/4diff.png) |
 
-> The expected and actual images are from [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch/tree/master/test/fixtures)
+> The expected and actual image are coming from [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch/tree/master/test/fixtures)
 
 ## Getting Started
 
@@ -38,7 +38,7 @@ Download the binaries for your platform from [release](https://github.com/jihchi
 
 #### Node.js ecosystem
 
-Please refer to [`dify-bin`](https://github.com/jihchi/dify-bin) npm package, it is an node.js wrapper for dify executable file:
+Please refer to [`dify-bin`](https://github.com/jihchi/dify-bin) npm package, it is a node.js wrapper for dify executable file:
 
 ```sh
 $ npm install -g dify-bin # or `yarn global add dify-bin`
@@ -48,12 +48,13 @@ $ dify --help
 ## Usage
 
 ```sh
-dify left.jpg right.jpg
+$ dify left.jpg right.jpg
+# check out diff.png if it is different
 ```
 
 ## Benchmarks
 
-> Test data is coming from [here](https://github.com/dmtrKovalenko/odiff/tree/main/images)
+> Test data is coming from [mtrKovalenko/odiff](https://github.com/dmtrKovalenko/odiff/tree/main/images)
 
 ```sh
 $ hyperfine \
