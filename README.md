@@ -14,11 +14,11 @@
 
 | Feature                                                  |     |
 | -------------------------------------------------------- | --- |
-| `.png`, `.jpg`, `.jpeg`, or `.bmp` format supported.     | ✅  |
-| Compares different format, `.png` vs `.jpg` for example. | ✅  |
-| Compares different dimensions.                           | ✅  |
+| `.png`, `.jpg`, `.jpeg`, or `.bmp` format supported      | ✅  |
+| Compares different format, `.png` vs `.jpg` for example  | ✅  |
+| Compares different dimensions                            | ✅  |
 | Anti-aliasing support                                    | ✅  |
-| Supports macOS, Linux and Windows.                       | ✅  |
+| Supports macOS, Linux and Windows                        | ✅  |
 
 ## Demo
 
