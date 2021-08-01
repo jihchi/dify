@@ -20,6 +20,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         do_not_check_dimensions: true,
         detect_anti_aliased_pixels: false,
         blend_factor_of_unchanged_pixels: None,
+        block_out_areas: None,
     };
 
     c.bench_function("1000 × 667 pixels", |b| {

@@ -3,6 +3,7 @@ use anyhow::{anyhow, Context, Result};
 use colored::*;
 use image::io::Reader as ImageIoReader;
 use image::{GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage};
+use std::collections::BTreeSet;
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
@@ -26,6 +27,7 @@ pub struct RunParams<'a> {
     pub do_not_check_dimensions: bool,
     pub detect_anti_aliased_pixels: bool,
     pub blend_factor_of_unchanged_pixels: Option<f32>,
+    pub block_out_areas: Option<BTreeSet<(u32, u32)>>,
 }
 
 fn open_and_decode_image(path: &str, which: &str) -> Result<RgbaImage> {
@@ -169,6 +171,7 @@ mod tests {
         do_not_check_dimensions: true,
         detect_anti_aliased_pixels: false,
         blend_factor_of_unchanged_pixels: None,
+        block_out_areas: None,
     };
 
     #[test]

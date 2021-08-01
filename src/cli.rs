@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use getopts::{Matches, Options};
+use std::collections::BTreeSet;
 use std::env;
 
 const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
@@ -35,10 +36,11 @@ impl Cli {
         options.optflag(SHORT_NAME_HELP, "help", "Print this help menu.");
         options.optflag(SHORT_NAME_VERSION, "version", "Print the version.");
 
-        options.optflag(
+        options.optmulti(
             BLOCK_OUT_AREA,
             "block-out",
             "Block-out area. Can be repeated multiple times.",
+            "x,y,w,h",
         );
 
         options.optflag(
@@ -206,5 +208,11 @@ impl Cli {
             .with_context(|| format!("the {} argument is missing", "RIGHT".magenta()).red())?;
 
         Ok((&left_image, &right_image))
+    }
+
+    pub fn get_block_out_area(&self) -> Option<BTreeSet<(u32, u32)>> {
+        let areas = self.matches.opt_strs(BLOCK_OUT_AREA);
+        println!("{:?}", areas);
+        None
     }
 }
