@@ -13,6 +13,7 @@ const SHORT_NAME_THRESHOLD: &str = "t";
 const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "d";
 const SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS: &str = "a";
 const DEFAULT_PATH_OF_DIFF_IMAGE: &str = "diff.png";
+const BLOCK_OUT_AREA: &str = "b";
 
 pub enum OutputImageBase {
     LeftImage,
@@ -31,46 +32,52 @@ impl Cli {
 
         let mut options = Options::new();
 
-        options.optflag(SHORT_NAME_HELP, "help", "print this help menu");
-        options.optflag(SHORT_NAME_VERSION, "version", "print the version");
+        options.optflag(SHORT_NAME_HELP, "help", "Print this help menu.");
+        options.optflag(SHORT_NAME_VERSION, "version", "Print the version.");
+
+        options.optflag(
+            BLOCK_OUT_AREA,
+            "block-out",
+            "Block-out area. Can be repeated multiple times.",
+        );
 
         options.optflag(
             SHORT_NAME_DONT_CHECK_DIMENSIONS,
             "ignore-dimensions",
-            "don't check image dimensions",
+            "Do not check image dimensions.",
         );
 
         options.optflagopt(
             SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS,
             "alpha",
-            "blending factor of unchanged pixels in the diff output. ranges from 0 for pure white to 1 for original brightness. (default: 0.1)",
+            "Blending factor of unchanged pixels in the diff output. Ranges from 0 for pure white to 1 for original brightness. (default: 0.1)",
             "NUM"
         );
 
         options.optflagopt(
             SHORT_NAME_COPY_IMAGE_AS_BASE,
             "copy-image",
-            "copies specific image to output as base. (default: left)",
+            "Copies specific image to output as base. (default: left)",
             "{left, right}",
         );
 
         options.optflag(
             SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS,
             "detect-anti-aliased",
-            "detect anti-aliased pixels. (default: false)",
+            "Detects anti-aliased pixels. (default: false)",
         );
 
         options.optopt(
             SHORT_NAME_OUTPUT_IMAGE_PATH,
             "output",
-            "the file path of diff image, PNG only. (default: diff.png)",
+            "The file path of diff image, PNG only. (default: diff.png)",
             "OUTPUT",
         );
 
         options.optopt(
             SHORT_NAME_THRESHOLD,
             "threshold",
-            "matching threshold, ranges from 0 to 1, less more precise. (default: 0.1)",
+            "Matching threshold, ranges from 0 to 1, less more precise. (default: 0.1)",
             "NUM",
         );
 
