@@ -16,6 +16,7 @@ pub enum DiffResult {
     Different(u32, u32),
     OutOfBounds(u32, u32),
     AntiAliased(u32, u32),
+    BlockedOut(u32, u32),
 }
 
 pub struct RunParams<'a> {
@@ -107,6 +108,7 @@ pub fn get_results(
             DiffResult::AntiAliased(x, y) => {
                 output_image.put_pixel(x, y, YELLOW_PIXEL);
             }
+            DiffResult::BlockedOut(_x, _y) => (),
         }
     }
 
