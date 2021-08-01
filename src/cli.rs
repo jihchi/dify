@@ -207,7 +207,7 @@ impl Cli {
             .get(1)
             .with_context(|| format!("the {} argument is missing", "RIGHT".magenta()).red())?;
 
-        Ok((&left_image, &right_image))
+        Ok((left_image, right_image))
     }
 
     pub fn get_block_out_area(&self) -> Option<BTreeSet<(u32, u32)>> {

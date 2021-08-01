@@ -1,4 +1,4 @@
-use super::{antialiased, cli, yiq::YIQ};
+use super::{antialiased, cli, yiq::Yiq};
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use image::io::Reader as ImageIoReader;
@@ -57,14 +57,14 @@ pub fn get_results(
             if left_pixel == right_pixel {
                 DiffResult::Identical(x, y)
             } else {
-                let left_pixel = YIQ::from_rgba(left_pixel);
-                let right_pixel = YIQ::from_rgba(right_pixel);
+                let left_pixel = Yiq::from_rgba(left_pixel);
+                let right_pixel = Yiq::from_rgba(right_pixel);
                 let delta = left_pixel.squared_distance(&right_pixel);
 
                 if delta.abs() > threshold {
                     if detect_anti_aliased_pixels
-                        && (antialiased(&left_image, x, y, width, height, &right_image)
-                            || antialiased(&right_image, x, y, width, height, &left_image))
+                        && (antialiased(left_image, x, y, width, height, right_image)
+                            || antialiased(right_image, x, y, width, height, left_image))
                     {
                         DiffResult::AntiAliased(x, y)
                     } else {
@@ -92,7 +92,7 @@ pub fn get_results(
             DiffResult::Identical(x, y) | DiffResult::BelowThreshold(x, y) => {
                 if let Some(alpha) = blend_factor_of_unchanged_pixels {
                     let left_pixel = left_image.get_pixel(x, y);
-                    let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
+                    let yiq_y = Yiq::rgb2y(&left_pixel.to_rgb());
                     let rgba_a = left_pixel.channels()[3] as f32;
                     let color =
                         super::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0) as u8;
