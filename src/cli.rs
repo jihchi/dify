@@ -13,8 +13,8 @@ const SHORT_NAME_OUTPUT_IMAGE_PATH: &str = "o";
 const SHORT_NAME_THRESHOLD: &str = "t";
 const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "d";
 const SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS: &str = "a";
+const SHORT_NAME_BLOCK_OUT_AREA: &str = "b";
 const DEFAULT_PATH_OF_DIFF_IMAGE: &str = "diff.png";
-const BLOCK_OUT_AREA: &str = "b";
 
 pub enum OutputImageBase {
     LeftImage,
@@ -37,7 +37,7 @@ impl Cli {
         options.optflag(SHORT_NAME_VERSION, "version", "Print the version.");
 
         options.optmulti(
-            BLOCK_OUT_AREA,
+            SHORT_NAME_BLOCK_OUT_AREA,
             "block-out",
             "Block-out area. Can be repeated multiple times.",
             "x,y,w,h",
@@ -211,7 +211,7 @@ impl Cli {
     }
 
     pub fn get_block_out_area(&self) -> Option<BTreeSet<(u32, u32)>> {
-        let areas = self.matches.opt_strs(BLOCK_OUT_AREA);
+        let areas = self.matches.opt_strs(SHORT_NAME_BLOCK_OUT_AREA);
         println!("{:?}", areas);
         None
     }
