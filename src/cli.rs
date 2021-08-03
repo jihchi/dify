@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use getopts::{Matches, Options};
-use std::collections::BTreeSet;
+use std::collections::HashSet;
 use std::env;
 
 const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
@@ -210,9 +210,37 @@ impl Cli {
         Ok((left_image, right_image))
     }
 
-    pub fn get_block_out_area(&self) -> Option<BTreeSet<(u32, u32)>> {
-        let areas = self.matches.opt_strs(SHORT_NAME_BLOCK_OUT_AREA);
-        println!("{:?}", areas);
-        None
+    pub fn get_block_out_area(&self) -> Option<HashSet<(u32, u32)>> {
+        self.matches
+            .opt_strs(SHORT_NAME_BLOCK_OUT_AREA)
+            .iter()
+            .fold(None, |acc, area| {
+                let area = {
+                    let mut segments = area
+                        .splitn(4, ",")
+                        .map(|segment| segment.parse::<u32>().ok().unwrap_or(0));
+                    let x = segments.next().unwrap_or(0);
+                    let y = segments.next().unwrap_or(0);
+                    let width = segments.next().unwrap_or(0);
+                    let height = segments.next().unwrap_or(0);
+
+                    match (x, y, width, height) {
+                        (0, _, _, _) | (_, 0, _, _) | (_, _, 0, _) | (_, _, _, 0) => None,
+                        (x, y, width, height) => Some((x, y, width, height)),
+                    }
+                };
+                match area {
+                    None => acc,
+                    Some((x, y, width, height)) => {
+                        let mut acc = acc.unwrap_or(HashSet::new());
+                        for i in x..=x + width {
+                            for j in y..=y + height {
+                                acc.insert((i, j));
+                            }
+                        }
+                        Some(acc)
+                    }
+                }
+            })
     }
 }
