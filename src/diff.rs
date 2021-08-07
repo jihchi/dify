@@ -48,6 +48,7 @@ pub fn get_results(
     detect_anti_aliased_pixels: bool,
     blend_factor_of_unchanged_pixels: Option<f32>,
     output_image_base: &Option<cli::OutputImageBase>,
+    block_out_areas: &Option<HashSet<(u32, u32)>>,
 ) -> Option<(i32, RgbaImage)> {
     let (width, height) = left_image.dimensions();
 
@@ -57,6 +58,12 @@ pub fn get_results(
 
             if left_pixel == right_pixel {
                 DiffResult::Identical(x, y)
+            } else if block_out_areas
+                .as_ref()
+                .and_then(|set| set.contains(&(x, y)).then(|| ()))
+                .is_some()
+            {
+                DiffResult::BlockedOut(x, y)
             } else {
                 let left_pixel = Yiq::from_rgba(left_pixel);
                 let right_pixel = Yiq::from_rgba(right_pixel);
@@ -147,6 +154,7 @@ pub fn run(params: &RunParams) -> Result<Option<i32>> {
         params.detect_anti_aliased_pixels,
         params.blend_factor_of_unchanged_pixels,
         &params.output_image_base,
+        &params.block_out_areas,
     ) {
         Some((diffs, output_image)) => {
             output_image
