@@ -42,8 +42,8 @@ fn open_and_decode_image(path: &str, which: &str) -> Result<RgbaImage> {
 }
 
 pub fn get_results(
-    left_image: &RgbaImage,
-    right_image: &RgbaImage,
+    left_image: RgbaImage,
+    right_image: RgbaImage,
     threshold: f32,
     detect_anti_aliased_pixels: bool,
     blend_factor_of_unchanged_pixels: Option<f32>,
@@ -71,8 +71,8 @@ pub fn get_results(
 
                 if delta.abs() > threshold {
                     if detect_anti_aliased_pixels
-                        && (antialiased(left_image, x, y, width, height, right_image)
-                            || antialiased(right_image, x, y, width, height, left_image))
+                        && (antialiased(&left_image, x, y, width, height, &right_image)
+                            || antialiased(&right_image, x, y, width, height, &left_image))
                     {
                         DiffResult::AntiAliased(x, y)
                     } else {
@@ -148,8 +148,8 @@ pub fn run(params: &RunParams) -> Result<Option<i32>> {
     let threshold = MAX_YIQ_POSSIBLE_DELTA * params.threshold * params.threshold;
 
     match get_results(
-        &left_image,
-        &right_image,
+        left_image,
+        right_image,
         threshold,
         params.detect_anti_aliased_pixels,
         params.blend_factor_of_unchanged_pixels,
