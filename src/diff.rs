@@ -187,12 +187,13 @@ mod tests {
     #[test]
     fn test_zero_width_height() {
         let actual = get_results(
-            &RgbaImage::new(0, 0),
-            &RgbaImage::new(0, 0),
+            RgbaImage::new(0, 0),
+            RgbaImage::new(0, 0),
             RUN_PARAMS.threshold,
             RUN_PARAMS.detect_anti_aliased_pixels,
             RUN_PARAMS.blend_factor_of_unchanged_pixels,
             &RUN_PARAMS.output_image_base,
+            &RUN_PARAMS.block_out_areas,
         );
         assert_eq!(None, actual);
     }
@@ -200,12 +201,13 @@ mod tests {
     #[test]
     fn test_1_pixel() {
         let actual = get_results(
-            &RgbaImage::new(1, 1),
-            &RgbaImage::new(1, 1),
+            RgbaImage::new(1, 1),
+            RgbaImage::new(1, 1),
             RUN_PARAMS.threshold,
             RUN_PARAMS.detect_anti_aliased_pixels,
             RUN_PARAMS.blend_factor_of_unchanged_pixels,
             &RUN_PARAMS.output_image_base,
+            &RUN_PARAMS.block_out_areas,
         );
         assert_eq!(None, actual);
     }
@@ -215,12 +217,13 @@ mod tests {
         let mut left = RgbaImage::new(1, 1);
         left.put_pixel(0, 0, YELLOW_PIXEL);
         let actual = get_results(
-            &left,
-            &RgbaImage::new(1, 1),
+            left,
+            RgbaImage::new(1, 1),
             RUN_PARAMS.threshold,
             RUN_PARAMS.detect_anti_aliased_pixels,
             RUN_PARAMS.blend_factor_of_unchanged_pixels,
             &RUN_PARAMS.output_image_base,
+            &RUN_PARAMS.block_out_areas,
         );
 
         let mut expected_image = RgbaImage::new(1, 1);
