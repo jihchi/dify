@@ -217,7 +217,7 @@ impl Cli {
             .fold(None, |acc, area| {
                 let area = {
                     let mut segments = area
-                        .splitn(4, ",")
+                        .splitn(4, ',')
                         .map(|segment| segment.parse::<u32>().ok().unwrap_or(0));
                     let x = segments.next().unwrap_or(0);
                     let y = segments.next().unwrap_or(0);
@@ -232,7 +232,7 @@ impl Cli {
                 match area {
                     None => acc,
                     Some((x, y, width, height)) => {
-                        let mut acc = acc.unwrap_or(HashSet::new());
+                        let mut acc = acc.unwrap_or_default();
                         for i in x..=x + width {
                             for j in y..=y + height {
                                 acc.insert((i, j));
