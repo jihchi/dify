@@ -1,13 +1,13 @@
 use image::Pixel;
 
 #[derive(Debug, PartialEq)]
-pub struct YIQ {
+pub struct Yiq {
     y: f32, // luminance, in range [0, 1]
     i: f32, // hue of color, in range ~ [-0.5, 0.5]
     q: f32, // saturation of color, in range ~ [-0.5, 0.5]
 }
 
-impl YIQ {
+impl Yiq {
     #[allow(clippy::many_single_char_names, clippy::excessive_precision)]
     pub fn rgb2y(rgb: &image::Rgb<u8>) -> f32 {
         let rgb = rgb.channels();
@@ -68,27 +68,27 @@ impl YIQ {
 
 #[cfg(test)]
 mod tests {
-    use super::YIQ;
+    use super::Yiq;
 
     #[test]
     fn test_from_rgb() {
-        let expected = YIQ {
+        let expected = Yiq {
             y: 0.0,
             i: 0.0,
             q: 0.0,
         };
-        let actual = YIQ::from_rgba(&image::Rgba([0, 0, 0, 0]));
+        let actual = Yiq::from_rgba(&image::Rgba([0, 0, 0, 0]));
         assert_eq!(expected, actual);
     }
 
     #[test]
     fn test_squared_distance_same() {
-        let a = YIQ {
+        let a = Yiq {
             y: 0.5,
             i: -0.1,
             q: 0.1,
         };
-        let b = YIQ {
+        let b = Yiq {
             y: 0.5,
             i: -0.1,
             q: 0.1,

@@ -2,9 +2,9 @@ pub mod cli;
 pub mod diff;
 mod yiq;
 
+use crate::yiq::Yiq;
 use image::{Pixel, RgbaImage};
 use std::cmp;
-use yiq::*;
 
 fn get_diagonal_neighbours(x1: u32, y1: u32, width: u32, height: u32) -> ((u32, u32), (u32, u32)) {
     // (x0, y0)
@@ -88,7 +88,7 @@ pub fn antialiased(
             }
 
             let neighbor = left.get_pixel(x, y).to_rgb();
-            let delta = YIQ::delta_y(center, &neighbor);
+            let delta = Yiq::delta_y(center, &neighbor);
 
             if delta == 0.0 {
                 zeros += 1;

@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use getopts::{Matches, Options};
+use std::collections::HashSet;
 use std::env;
 
 const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
@@ -12,6 +13,7 @@ const SHORT_NAME_OUTPUT_IMAGE_PATH: &str = "o";
 const SHORT_NAME_THRESHOLD: &str = "t";
 const SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS: &str = "d";
 const SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS: &str = "a";
+const SHORT_NAME_BLOCK_OUT_AREA: &str = "b";
 const DEFAULT_PATH_OF_DIFF_IMAGE: &str = "diff.png";
 
 pub enum OutputImageBase {
@@ -31,46 +33,53 @@ impl Cli {
 
         let mut options = Options::new();
 
-        options.optflag(SHORT_NAME_HELP, "help", "print this help menu");
-        options.optflag(SHORT_NAME_VERSION, "version", "print the version");
+        options.optflag(SHORT_NAME_HELP, "help", "Print this help menu.");
+        options.optflag(SHORT_NAME_VERSION, "version", "Print the version.");
+
+        options.optmulti(
+            SHORT_NAME_BLOCK_OUT_AREA,
+            "block-out",
+            "Block-out area. Can be repeated multiple times.",
+            "x,y,w,h",
+        );
 
         options.optflag(
             SHORT_NAME_DONT_CHECK_DIMENSIONS,
             "ignore-dimensions",
-            "don't check image dimensions",
+            "Do not check image dimensions.",
         );
 
         options.optflagopt(
             SHORT_NAME_BLEND_FACTOR_OF_UNCHENGED_PIXELS,
             "alpha",
-            "blending factor of unchanged pixels in the diff output. ranges from 0 for pure white to 1 for original brightness. (default: 0.1)",
+            "Blending factor of unchanged pixels in the diff output. Ranges from 0 for pure white to 1 for original brightness. (default: 0.1)",
             "NUM"
         );
 
         options.optflagopt(
             SHORT_NAME_COPY_IMAGE_AS_BASE,
             "copy-image",
-            "copies specific image to output as base. (default: left)",
+            "Copies specific image to output as base. (default: left)",
             "{left, right}",
         );
 
         options.optflag(
             SHORT_NAME_DETECT_ANTI_ALIASED_PIXELS,
             "detect-anti-aliased",
-            "detect anti-aliased pixels. (default: false)",
+            "Detects anti-aliased pixels. (default: false)",
         );
 
         options.optopt(
             SHORT_NAME_OUTPUT_IMAGE_PATH,
             "output",
-            "the file path of diff image, PNG only. (default: diff.png)",
+            "The file path of diff image, PNG only. (default: diff.png)",
             "OUTPUT",
         );
 
         options.optopt(
             SHORT_NAME_THRESHOLD,
             "threshold",
-            "matching threshold, ranges from 0 to 1, less more precise. (default: 0.1)",
+            "Matching threshold, ranges from 0 to 1, less more precise. (default: 0.1)",
             "NUM",
         );
 
@@ -198,6 +207,40 @@ impl Cli {
             .get(1)
             .with_context(|| format!("the {} argument is missing", "RIGHT".magenta()).red())?;
 
-        Ok((&left_image, &right_image))
+        Ok((left_image, right_image))
+    }
+
+    pub fn get_block_out_area(&self) -> Option<HashSet<(u32, u32)>> {
+        self.matches
+            .opt_strs(SHORT_NAME_BLOCK_OUT_AREA)
+            .iter()
+            .fold(None, |acc, area| {
+                let area = {
+                    let mut segments = area
+                        .splitn(4, ',')
+                        .map(|segment| segment.parse::<u32>().ok().unwrap_or(0));
+                    let x = segments.next().unwrap_or(0);
+                    let y = segments.next().unwrap_or(0);
+                    let width = segments.next().unwrap_or(0);
+                    let height = segments.next().unwrap_or(0);
+
+                    match (x, y, width, height) {
+                        (0, _, _, _) | (_, 0, _, _) | (_, _, 0, _) | (_, _, _, 0) => None,
+                        (x, y, width, height) => Some((x, y, width, height)),
+                    }
+                };
+                match area {
+                    None => acc,
+                    Some((x, y, width, height)) => {
+                        let mut acc = acc.unwrap_or_default();
+                        for i in x..=x + width {
+                            for j in y..=y + height {
+                                acc.insert((i, j));
+                            }
+                        }
+                        Some(acc)
+                    }
+                }
+            })
     }
 }

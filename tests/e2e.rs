@@ -148,3 +148,25 @@ fn test_output_image_web_page() {
 
     temp.close().unwrap();
 }
+
+#[test]
+fn test_block_out_area() {
+    let temp = NamedTempFile::new("tiger-blockout-diff.png").unwrap();
+    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let assert = cmd
+        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
+        .arg(fs::canonicalize("./benches/fixtures/yellow.jpg").unwrap())
+        .arg("--output")
+        .arg(temp.path().display().to_string())
+        .arg("--copy-image")
+        .arg("left")
+        .arg("--block-out")
+        .arg("100,50,350,400");
+
+    assert.assert().failure();
+    temp.assert(predicate::path::eq_file(
+        fs::canonicalize("./benches/fixtures/tiger-blockout-diff.png").unwrap(),
+    ));
+
+    temp.close().unwrap();
+}

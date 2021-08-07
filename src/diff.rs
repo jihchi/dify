@@ -1,8 +1,9 @@
-use super::{antialiased, cli, yiq::YIQ};
+use super::{antialiased, cli, yiq::Yiq};
 use anyhow::{anyhow, Context, Result};
 use colored::*;
 use image::io::Reader as ImageIoReader;
 use image::{GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage};
+use std::collections::HashSet;
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
 const RED_PIXEL: Rgba<u8> = Rgba([255, 0, 0, 255]);
@@ -15,6 +16,7 @@ pub enum DiffResult {
     Different(u32, u32),
     OutOfBounds(u32, u32),
     AntiAliased(u32, u32),
+    BlockedOut(u32, u32),
 }
 
 pub struct RunParams<'a> {
@@ -26,6 +28,7 @@ pub struct RunParams<'a> {
     pub do_not_check_dimensions: bool,
     pub detect_anti_aliased_pixels: bool,
     pub blend_factor_of_unchanged_pixels: Option<f32>,
+    pub block_out_areas: Option<HashSet<(u32, u32)>>,
 }
 
 fn open_and_decode_image(path: &str, which: &str) -> Result<RgbaImage> {
@@ -39,12 +42,13 @@ fn open_and_decode_image(path: &str, which: &str) -> Result<RgbaImage> {
 }
 
 pub fn get_results(
-    left_image: &RgbaImage,
-    right_image: &RgbaImage,
+    left_image: RgbaImage,
+    right_image: RgbaImage,
     threshold: f32,
     detect_anti_aliased_pixels: bool,
     blend_factor_of_unchanged_pixels: Option<f32>,
     output_image_base: &Option<cli::OutputImageBase>,
+    block_out_areas: &Option<HashSet<(u32, u32)>>,
 ) -> Option<(i32, RgbaImage)> {
     let (width, height) = left_image.dimensions();
 
@@ -54,9 +58,15 @@ pub fn get_results(
 
             if left_pixel == right_pixel {
                 DiffResult::Identical(x, y)
+            } else if block_out_areas
+                .as_ref()
+                .and_then(|set| set.contains(&(x, y)).then(|| ()))
+                .is_some()
+            {
+                DiffResult::BlockedOut(x, y)
             } else {
-                let left_pixel = YIQ::from_rgba(left_pixel);
-                let right_pixel = YIQ::from_rgba(right_pixel);
+                let left_pixel = Yiq::from_rgba(left_pixel);
+                let right_pixel = Yiq::from_rgba(right_pixel);
                 let delta = left_pixel.squared_distance(&right_pixel);
 
                 if delta.abs() > threshold {
@@ -90,7 +100,7 @@ pub fn get_results(
             DiffResult::Identical(x, y) | DiffResult::BelowThreshold(x, y) => {
                 if let Some(alpha) = blend_factor_of_unchanged_pixels {
                     let left_pixel = left_image.get_pixel(x, y);
-                    let yiq_y = YIQ::rgb2y(&left_pixel.to_rgb());
+                    let yiq_y = Yiq::rgb2y(&left_pixel.to_rgb());
                     let rgba_a = left_pixel.channels()[3] as f32;
                     let color =
                         super::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0) as u8;
@@ -105,6 +115,7 @@ pub fn get_results(
             DiffResult::AntiAliased(x, y) => {
                 output_image.put_pixel(x, y, YELLOW_PIXEL);
             }
+            DiffResult::BlockedOut(_x, _y) => (),
         }
     }
 
@@ -137,12 +148,13 @@ pub fn run(params: &RunParams) -> Result<Option<i32>> {
     let threshold = MAX_YIQ_POSSIBLE_DELTA * params.threshold * params.threshold;
 
     match get_results(
-        &left_image,
-        &right_image,
+        left_image,
+        right_image,
         threshold,
         params.detect_anti_aliased_pixels,
         params.blend_factor_of_unchanged_pixels,
         &params.output_image_base,
+        &params.block_out_areas,
     ) {
         Some((diffs, output_image)) => {
             output_image
@@ -169,17 +181,19 @@ mod tests {
         do_not_check_dimensions: true,
         detect_anti_aliased_pixels: false,
         blend_factor_of_unchanged_pixels: None,
+        block_out_areas: None,
     };
 
     #[test]
     fn test_zero_width_height() {
         let actual = get_results(
-            &RgbaImage::new(0, 0),
-            &RgbaImage::new(0, 0),
+            RgbaImage::new(0, 0),
+            RgbaImage::new(0, 0),
             RUN_PARAMS.threshold,
             RUN_PARAMS.detect_anti_aliased_pixels,
             RUN_PARAMS.blend_factor_of_unchanged_pixels,
             &RUN_PARAMS.output_image_base,
+            &RUN_PARAMS.block_out_areas,
         );
         assert_eq!(None, actual);
     }
@@ -187,12 +201,13 @@ mod tests {
     #[test]
     fn test_1_pixel() {
         let actual = get_results(
-            &RgbaImage::new(1, 1),
-            &RgbaImage::new(1, 1),
+            RgbaImage::new(1, 1),
+            RgbaImage::new(1, 1),
             RUN_PARAMS.threshold,
             RUN_PARAMS.detect_anti_aliased_pixels,
             RUN_PARAMS.blend_factor_of_unchanged_pixels,
             &RUN_PARAMS.output_image_base,
+            &RUN_PARAMS.block_out_areas,
         );
         assert_eq!(None, actual);
     }
@@ -202,12 +217,13 @@ mod tests {
         let mut left = RgbaImage::new(1, 1);
         left.put_pixel(0, 0, YELLOW_PIXEL);
         let actual = get_results(
-            &left,
-            &RgbaImage::new(1, 1),
+            left,
+            RgbaImage::new(1, 1),
             RUN_PARAMS.threshold,
             RUN_PARAMS.detect_anti_aliased_pixels,
             RUN_PARAMS.blend_factor_of_unchanged_pixels,
             &RUN_PARAMS.output_image_base,
+            &RUN_PARAMS.block_out_areas,
         );
 
         let mut expected_image = RgbaImage::new(1, 1);
