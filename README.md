@@ -18,6 +18,7 @@
 | Compares different format, `.png` vs `.jpg` for example  | ✅  |
 | Compares different dimensions                            | ✅  |
 | Anti-aliasing support                                    | ✅  |
+| Blockout areas support                                   | ✅  |
 | Supports macOS, Linux and Windows                        | ✅  |
 
 ## Demo
