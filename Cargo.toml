@@ -15,6 +15,14 @@ include = [
   "README.md",
   "LICENSE.md",
 ]
+keywords = [
+  "image comparsion",
+  "YIQ",
+]
+categories = [
+  "command-line-utilities",
+  "multimedia::images",
+]
 
 [package.metadata.release]
 pre-release-commit-message = "Bump version to {{version}}"
