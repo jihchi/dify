@@ -8,7 +8,10 @@
 </div>
 
 [![Workflows - CI][workflows-ci-shield]][workflows-ci-url]
-[![crates.io][crates-io-shield]][crates-io-url]
+[![crates.io version][crates-io-shield-version]][crates-io-url]
+[![crates.io license][crates-io-shield-license]][crates-io-url]
+[![crates.io downloads][crates-io-shield-downloads]][crates-io-url]
+[![docs.rs][docs-rs]][docs-rs-url]
 
 ## Features
 
@@ -104,5 +107,9 @@ Distributed under the MIT License. See [`LICENSE`](./LICENSE.md) for more inform
 
 [workflows-ci-shield]: https://github.com/jihchi/dify/workflows/CI/badge.svg
 [workflows-ci-url]: https://github.com/jihchi/dify/actions?query=workflow%3ACI
-[crates-io-shield]: https://img.shields.io/crates/v/dify.svg
+[crates-io-shield-version]: https://img.shields.io/crates/v/dify
+[crates-io-shield-downloads]: https://img.shields.io/crates/d/dify
+[crates-io-shield-license]: https://img.shields.io/crates/l/dify
+[docs-rs]: https://img.shields.io/docsrs/dify
 [crates-io-url]: https://crates.io/crates/dify
+[docs-rs-url]: https://docs.rs/dify
