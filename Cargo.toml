@@ -16,7 +16,11 @@ include = [
   "LICENSE.md",
 ]
 keywords = [
-  "image comparsion",
+  "image",
+  "diff",
+  "compare",
+  "changes",
+  "assert",
   "YIQ",
 ]
 categories = [
