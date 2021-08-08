@@ -7,7 +7,7 @@ homepage = "https://github.com/jihchi/dify"
 documentation = "https://docs.rs/dify"
 repository = "https://github.com/jihchi/dify.git"
 readme = "README.md"
-license-file = "LICENSE.md"
+license = "MIT"
 edition = "2018"
 include = [
   "src/**/*.rs",
