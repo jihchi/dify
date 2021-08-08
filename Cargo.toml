@@ -21,7 +21,6 @@ keywords = [
   "compare",
   "changes",
   "assert",
-  "YIQ",
 ]
 categories = [
   "command-line-utilities",
