@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/jihchi/dify">
-    <img src="logo.png" alt="Dify Logo" /></a>
+    <img src="./assets/logo.png" alt="Dify Logo" /></a>
   <h1>Dify</h1>
     <p>
       <b>A fast pixel-by-pixel image comparison tool in Rust</b>
@@ -28,7 +28,7 @@
 
 | expected                 | actual                 | diff                      |
 | ------------------------ | ---------------------- | ------------------------- |
-| ![expected](demo/4a.png) | ![actual](demo/4b.png) | ![diff](demo/4diff.png) |
+| ![expected](./assets/4a.png) | ![actual](./assets/4b.png) | ![diff](./assets/4diff.png) |
 
 > The expected and actual image are coming from [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch/tree/master/test/fixtures)
 
