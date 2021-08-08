@@ -59,7 +59,7 @@ impl Cli {
         options.optflagopt(
             SHORT_NAME_COPY_IMAGE_AS_BASE,
             "copy-image",
-            "Copies specific image to output as base. (default: left)",
+            "Copies specific image to output as base.",
             "{left, right}",
         );
 
