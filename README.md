@@ -49,19 +49,20 @@ npm install -g dify-bin # or `yarn global add dify-bin`
 dify --help
 ```
 
-### Docker
-
-```sh
-docker run -v $(pwd):/mnt/dify ghcr.io/jihchi/dify a.jpg b.jpg
-```
-
-Checkout `$(pwd)/diff.png` if `a.jpg` and `b.jpg` are different.
-
 ## Usage
 
 ```sh
-$ dify left.jpg right.jpg
-# check out diff.png if it is different
+dify left.jpg right.jpg
+```
+
+Checkout `diff.png` if `a.jpg` and `b.jpg` are different.
+
+For more details, see `dify --help`.
+
+### Docker
+
+```sh
+docker run -v $(pwd):/mnt/dify ghcr.io/jihchi/dify left.jpg right.jpg
 ```
 
 ## Benchmarks
@@ -69,7 +70,7 @@ $ dify left.jpg right.jpg
 > Test data is coming from [mtrKovalenko/odiff](https://github.com/dmtrKovalenko/odiff/tree/main/images)
 
 ```sh
-$ hyperfine \
+hyperfine \
   --warmup 1 \
   --ignore-failure \
   --export-markdown bench-dify.md \
