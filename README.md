@@ -45,9 +45,17 @@ Download the binaries for your platform from [release](https://github.com/jihchi
 Please refer to [`dify-bin`](https://github.com/jihchi/dify-bin) npm package, it is a node.js wrapper for dify executable file:
 
 ```sh
-$ npm install -g dify-bin # or `yarn global add dify-bin`
-$ dify --help
+npm install -g dify-bin # or `yarn global add dify-bin`
+dify --help
 ```
+
+### Docker
+
+```sh
+docker run -v $(pwd):/mnt/dify ghcr.io/jihchi/dify a.jpg b.jpg
+```
+
+Checkout `$(pwd)/diff.png` if `a.jpg` and `b.jpg` are different.
 
 ## Usage
 
