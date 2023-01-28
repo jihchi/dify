@@ -114,6 +114,14 @@ Distributed under the MIT License. See [`LICENSE`](./LICENSE.md) for more inform
   - [Measuring perceived color difference using YIQ NTSC transmission color space in mobile applications](http://www.progmat.uaem.mx:8080/artVol2Num2/Articulo3Vol2Num2.pdf) (2010, Yuriy Kotsarenko, Fernando Ramos)
   - [Anti-aliased pixel and intensity slope detector](https://www.researchgate.net/publication/234126755_Anti-aliased_Pixel_and_Intensity_Slope_Detector) (2009, Vytautas Vyšniauskas)
 
+## Contributors
+
+Many thanks for your help!
+
+<a href="https://github.com/jihchi/dify/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=jihchi/dify" />
+</a>
+
 [workflows-ci-shield]: https://github.com/jihchi/dify/workflows/CI/badge.svg
 [workflows-ci-url]: https://github.com/jihchi/dify/actions?query=workflow%3ACI
 [crates-io-shield-version]: https://img.shields.io/crates/v/dify
