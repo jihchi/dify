@@ -74,99 +74,138 @@ Caused by:
 
 #[test]
 fn test_identical_image() {
+    let output = NamedTempFile::new("test_identical_image-diff.png")
+        .unwrap()
+        .into_persistent_if(std::env::var_os("CI").is_some());
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
-        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap());
+        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
+        .arg("--output")
+        .arg(output.path().display().to_string());
 
     assert.assert().success();
+
+    output.close().unwrap();
 }
 
 #[test]
 fn test_different_image() {
-    let mut cmd = Command::cargo_bin("dify").unwrap();
-    let assert = cmd
-        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
-        .arg(fs::canonicalize("./benches/fixtures/tiger-2.jpg").unwrap());
-
-    assert.assert().code(match consts::OS {
-        "windows" => 7787,
-        "linux" | "macos" | _ => 107,
-    });
-}
-
-#[test]
-fn test_output_image() {
-    let temp = NamedTempFile::new("tiger-diff.png").unwrap();
+    let running_on_ci = std::env::var_os("CI").is_some();
+    let output = NamedTempFile::new("test_different_image-diff.png").unwrap();
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/tiger-2.jpg").unwrap())
         .arg("--output")
-        .arg(temp.path().display().to_string());
+        .arg(output.path().display().to_string());
+
+    assert.assert().code(match consts::OS {
+        "windows" => 7787,
+        "linux" | "macos" | _ => {
+            if running_on_ci {
+                108
+            } else {
+                107
+            }
+        }
+    });
+
+    output.close().unwrap();
+}
+
+#[test]
+fn test_output_image() {
+    let running_on_ci = std::env::var_os("CI").is_some();
+    let output = NamedTempFile::new("test_output_image-diff.png")
+        .unwrap()
+        .into_persistent_if(running_on_ci);
+    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let assert = cmd
+        .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
+        .arg(fs::canonicalize("./benches/fixtures/tiger-2.jpg").unwrap())
+        .arg("--output")
+        .arg(output.path().display().to_string());
 
     assert.assert().failure();
-    temp.assert(predicate::path::eq_file(
-        fs::canonicalize("./benches/fixtures/tiger-diff.png").unwrap(),
+    output.assert(predicate::path::eq_file(
+        fs::canonicalize(if running_on_ci {
+            "./benches/fixtures/CI/test_output_image-diff.png"
+        } else {
+            "./benches/fixtures/test_output_image-diff.png"
+        })
+        .unwrap(),
     ));
 
-    temp.close().unwrap();
+    output.close().unwrap();
 }
 
 #[test]
 fn test_output_image_4k() {
-    let temp = NamedTempFile::new("water-4k-diff.png").unwrap();
+    let output = NamedTempFile::new("test_output_image_4k-diff.png")
+        .unwrap()
+        .into_persistent_if(std::env::var_os("CI").is_some());
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/water-4k.png").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/water-4k-2.png").unwrap())
         .arg("--output")
-        .arg(temp.path().display().to_string());
+        .arg(output.path().display().to_string());
 
     assert.assert().failure();
-    temp.assert(predicate::path::eq_file(
+    output.assert(predicate::path::eq_file(
         fs::canonicalize("./benches/fixtures/water-4k-diff.png").unwrap(),
     ));
 
-    temp.close().unwrap();
+    output.close().unwrap();
 }
 
 #[test]
 fn test_output_image_web_page() {
-    let temp = NamedTempFile::new("www.cypress.io-diff.png").unwrap();
+    let output = NamedTempFile::new("test_output_image_web_page-diff.png")
+        .unwrap()
+        .into_persistent_if(std::env::var_os("CI").is_some());
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/www.cypress.io.png").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/www.cypress.io-2.png").unwrap())
         .arg("--output")
-        .arg(temp.path().display().to_string());
+        .arg(output.path().display().to_string());
 
     assert.assert().failure();
-    temp.assert(predicate::path::eq_file(
+    output.assert(predicate::path::eq_file(
         fs::canonicalize("./benches/fixtures/www.cypress.io-diff.png").unwrap(),
     ));
 
-    temp.close().unwrap();
+    output.close().unwrap();
 }
 
 #[test]
 fn test_block_out_area() {
-    let temp = NamedTempFile::new("tiger-blockout-diff.png").unwrap();
+    let running_on_ci = std::env::var_os("CI").is_some();
+    let output = NamedTempFile::new("test_block_out_area-diff.png")
+        .unwrap()
+        .into_persistent_if(running_on_ci);
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/yellow.jpg").unwrap())
         .arg("--output")
-        .arg(temp.path().display().to_string())
+        .arg(output.path().display().to_string())
         .arg("--copy-image")
         .arg("left")
         .arg("--block-out")
         .arg("100,50,350,400");
 
     assert.assert().failure();
-    temp.assert(predicate::path::eq_file(
-        fs::canonicalize("./benches/fixtures/tiger-blockout-diff.png").unwrap(),
+    output.assert(predicate::path::eq_file(
+        fs::canonicalize(if running_on_ci {
+            "./benches/fixtures/CI/test_block_out_area-diff.png"
+        } else {
+            "./benches/fixtures/test_block_out_area-diff.png"
+        })
+        .unwrap(),
     ));
 
-    temp.close().unwrap();
+    output.close().unwrap();
 }

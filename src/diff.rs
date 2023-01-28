@@ -60,7 +60,7 @@ pub fn get_results(
                 DiffResult::Identical(x, y)
             } else if block_out_areas
                 .as_ref()
-                .and_then(|set| set.contains(&(x, y)).then(|| ()))
+                .and_then(|set| set.contains(&(x, y)).then_some(()))
                 .is_some()
             {
                 DiffResult::BlockedOut(x, y)
