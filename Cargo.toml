@@ -54,7 +54,7 @@ assert_fs = "1.0.1"
 predicates = "2.0.1"
 
 [dependencies]
-image = "0.23.14"
+image = "^0.24"
 getopts = "0.2.21"
 anyhow = "1.0.40"
 colored = "2.0.0"
