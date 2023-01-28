@@ -155,7 +155,7 @@ impl Cli {
                 .with_context(|| {
                     format!(
                         "the value of {} is invalid",
-                        format!("-a/--alpha {}", s).magenta()
+                        format!("-a/--alpha {s}").magenta()
                     )
                     .red()
                 })
@@ -165,7 +165,7 @@ impl Cli {
                     } else {
                         Err(anyhow!(format!(
                             "the value of {} should be in range 0 to 1",
-                            format!("-a/--alpha {}", s).magenta()
+                            format!("-a/--alpha {s}").magenta()
                         )
                         .red()))
                     }
@@ -187,7 +187,7 @@ impl Cli {
                 s.parse::<f32>().with_context(|| {
                     format!(
                         "the value of {} is invalid",
-                        format!("-t/--threshold {}", s).magenta()
+                        format!("-t/--threshold {s}").magenta()
                     )
                     .red()
                 })
