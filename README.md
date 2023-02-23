@@ -119,8 +119,10 @@ Distributed under the MIT License. See [`LICENSE`](./LICENSE.md) for more inform
 Many thanks for your help!
 
 <a href="https://github.com/jihchi/dify/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=jihchi/dify" />
+  <img src="https://contrib.rocks/image?repo=jihchi/dify" />
 </a>
+
+The image of contributors is made with [contrib.rocks](https://contrib.rocks).
 
 [workflows-ci-shield]: https://github.com/jihchi/dify/workflows/CI/badge.svg
 [workflows-ci-url]: https://github.com/jihchi/dify/actions?query=workflow%3ACI
