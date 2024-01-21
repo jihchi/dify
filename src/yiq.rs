@@ -2,9 +2,9 @@ use image::Pixel;
 
 #[derive(Debug, PartialEq)]
 pub struct Yiq {
-    y: f32, // luminance, in range [0, 1]
-    i: f32, // hue of color, in range ~ [-0.5, 0.5]
-    q: f32, // saturation of color, in range ~ [-0.5, 0.5]
+    y: f32, // luminance
+    i: f32, // hue of color
+    q: f32, // saturation of color
 }
 
 impl Yiq {
