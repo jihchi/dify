@@ -52,9 +52,10 @@ criterion = "0.3.4"
 assert_cmd = "2.0.0"
 assert_fs = "1.0.1"
 predicates = "2.0.1"
+image = { version = "0.25.2", default-features = true }
 
 [dependencies]
-image = "^0.24"
+image = { version = "0.25.2", default-features = false }
 getopts = "0.2.21"
 anyhow = "1.0.40"
 colored = "2.0.0"
