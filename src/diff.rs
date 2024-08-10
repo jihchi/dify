@@ -1,8 +1,7 @@
 use super::{antialiased, cli, yiq::Yiq};
 use anyhow::{anyhow, Context, Result};
 use colored::*;
-use image::io::Reader as ImageIoReader;
-use image::{GenericImageView, ImageBuffer, ImageFormat, Pixel, Rgba, RgbaImage};
+use image::{GenericImageView, ImageBuffer, ImageFormat, ImageReader, Pixel, Rgba, RgbaImage};
 use std::collections::HashSet;
 
 const MAX_YIQ_POSSIBLE_DELTA: f32 = 35215.0;
@@ -32,7 +31,7 @@ pub struct RunParams<'a> {
 }
 
 fn open_and_decode_image(path: &str, which: &str) -> Result<RgbaImage> {
-    let image = ImageIoReader::open(path)
+    let image = ImageReader::open(path)
         .with_context(|| format!("failed to open {} image \"{}\"", which, path.magenta()).red())?
         .decode()
         .with_context(|| format!("failed to decode {} image \"{}\"", which, path.magenta()).red())?
