@@ -91,7 +91,6 @@ fn test_identical_image() {
 
 #[test]
 fn test_different_image() {
-    let running_on_ci = std::env::var_os("CI").is_some();
     let output = NamedTempFile::new("test_different_image-diff.png").unwrap();
     let mut cmd = Command::cargo_bin("dify").unwrap();
     let assert = cmd
@@ -102,13 +101,7 @@ fn test_different_image() {
 
     assert.assert().code(match consts::OS {
         "windows" => 7787,
-        "linux" | "macos" | _ => {
-            if running_on_ci {
-                107
-            } else {
-                106
-            }
-        }
+        "linux" | "macos" | _ => 106,
     });
 
     output.close().unwrap();
@@ -129,12 +122,7 @@ fn test_output_image() {
 
     assert.assert().failure();
     output.assert(predicate::path::eq_file(
-        fs::canonicalize(if running_on_ci {
-            "./benches/fixtures/CI/test_output_image-diff.png"
-        } else {
-            "./benches/fixtures/test_output_image-diff.png"
-        })
-        .unwrap(),
+        fs::canonicalize("./benches/fixtures/test_output_image-diff.png").unwrap(),
     ));
 
     output.close().unwrap();
@@ -199,12 +187,7 @@ fn test_block_out_area() {
 
     assert.assert().failure();
     output.assert(predicate::path::eq_file(
-        fs::canonicalize(if running_on_ci {
-            "./benches/fixtures/CI/test_block_out_area-diff.png"
-        } else {
-            "./benches/fixtures/test_block_out_area-diff.png"
-        })
-        .unwrap(),
+        fs::canonicalize("./benches/fixtures/test_block_out_area-diff.png").unwrap(),
     ));
 
     output.close().unwrap();
