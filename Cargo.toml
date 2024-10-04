@@ -1,7 +1,7 @@
 [package]
 name = "dify"
 authors = ["Jihchi Lee <achi@987.tw>"]
-version = "0.7.2"
+version = "0.7.3"
 description = "A fast pixel-by-pixel image comparison tool in Rust"
 homepage = "https://github.com/jihchi/dify"
 documentation = "https://docs.rs/dify"
