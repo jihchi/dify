@@ -104,9 +104,9 @@ fn test_different_image() {
         "windows" => 7787,
         "linux" | "macos" | _ => {
             if running_on_ci {
-                108
-            } else {
                 107
+            } else {
+                106
             }
         }
     });
