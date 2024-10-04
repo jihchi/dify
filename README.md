@@ -18,7 +18,7 @@
 | Feature                                                  |     |
 | -------------------------------------------------------- | --- |
 | `.png`, `.jpg`, `.jpeg`, or `.bmp` format supported      | ✅  |
-| Compares different format, `.png` vs `.jpg` for example  | ✅  |
+| Compares different format (`.png` vs `.jpg` for example) | ✅  |
 | Compares different dimensions                            | ✅  |
 | Anti-aliasing support                                    | ✅  |
 | Blockout areas support                                   | ✅  |
@@ -26,21 +26,25 @@
 
 ## Demo
 
-| expected                 | actual                 | diff                      |
-| ------------------------ | ---------------------- | ------------------------- |
+| expected[^1]                 | actual[^1]                 | diff                        |
+| ---------------------------- | -------------------------- | --------------------------- |
 | ![expected](./assets/4a.png) | ![actual](./assets/4b.png) | ![diff](./assets/4diff.png) |
-
-> The expected and actual image are coming from [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch/tree/master/test/fixtures)
 
 ## Getting Started
 
 ### Installation
 
-#### From binaries
+#### via pre-built binaries
 
 Download the binaries for your platform from [release](https://github.com/jihchi/dify/releases) page.
 
-#### Node.js ecosystem
+#### via [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
+
+```sh
+cargo install dify
+```
+
+#### via Node.js ecosystem
 
 Please refer to [`dify-bin`](https://github.com/jihchi/dify-bin) npm package, it is a node.js wrapper for dify executable file:
 
@@ -67,7 +71,7 @@ docker run -v $(pwd):/mnt/dify ghcr.io/jihchi/dify left.jpg right.jpg
 
 ## Benchmarks
 
-> Test data is coming from [mtrKovalenko/odiff](https://github.com/dmtrKovalenko/odiff/tree/main/images)
+Test data comes from [mtrKovalenko/odiff](https://github.com/dmtrKovalenko/odiff/tree/main/images).
 
 ```sh
 hyperfine \
@@ -109,7 +113,7 @@ Distributed under the MIT License. See [`LICENSE`](./LICENSE.md) for more inform
 
 ## Acknowledgements
 
-- This project is inspired by [dmtrKovalenko/odiff](https://github.com/dmtrKovalenko/odiff) and [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch)
+- This project is inspired by [dmtrKovalenko/odiff](https://github.com/dmtrKovalenko/odiff) and [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch).
 - This project implements ideas from the following papers:
   - [Measuring perceived color difference using YIQ NTSC transmission color space in mobile applications](http://www.progmat.uaem.mx:8080/artVol2Num2/Articulo3Vol2Num2.pdf) (2010, Yuriy Kotsarenko, Fernando Ramos)
   - [Anti-aliased pixel and intensity slope detector](https://www.researchgate.net/publication/234126755_Anti-aliased_Pixel_and_Intensity_Slope_Detector) (2009, Vytautas Vyšniauskas)
@@ -132,3 +136,5 @@ The image of contributors is made with [contrib.rocks](https://contrib.rocks).
 [docs-rs]: https://img.shields.io/docsrs/dify
 [crates-io-url]: https://crates.io/crates/dify
 [docs-rs-url]: https://docs.rs/dify
+
+[^1]: Images comes from [mapbox/pixelmatch](https://github.com/mapbox/pixelmatch/tree/master/test/fixtures)
