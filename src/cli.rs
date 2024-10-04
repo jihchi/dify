@@ -198,7 +198,7 @@ impl Cli {
         let left_image = self
             .matches
             .free
-            .get(0)
+            .first()
             .with_context(|| format!("the {} argument is missing", "LEFT".magenta()).red())?;
 
         let right_image = self
