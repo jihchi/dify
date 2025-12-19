@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use colored::*;
 use getopts::{Matches, Options};
 use std::collections::HashSet;
@@ -119,11 +119,13 @@ impl Cli {
             Some(value) => match &value.to_lowercase()[..] {
                 "left" => Ok(Some(OutputImageBase::LeftImage)),
                 "right" => Ok(Some(OutputImageBase::RightImage)),
-                unsupported => Err(anyhow!(format!(
-                    "-c/--copy-image \"{}\" is not supported, possible values: left, right",
-                    unsupported.magenta()
-                )
-                .red())),
+                unsupported => Err(anyhow!(
+                    format!(
+                        "-c/--copy-image \"{}\" is not supported, possible values: left, right",
+                        unsupported.magenta()
+                    )
+                    .red()
+                )),
             },
             None => Ok(Some(OutputImageBase::LeftImage)),
         }
@@ -163,11 +165,13 @@ impl Cli {
                     if (0.0..=1.0).contains(&n) {
                         Ok(Some(n))
                     } else {
-                        Err(anyhow!(format!(
-                            "the value of {} should be in range 0 to 1",
-                            format!("-a/--alpha {s}").magenta()
-                        )
-                        .red()))
+                        Err(anyhow!(
+                            format!(
+                                "the value of {} should be in range 0 to 1",
+                                format!("-a/--alpha {s}").magenta()
+                            )
+                            .red()
+                        ))
                     }
                 }),
             None => Ok(Some(0.1)),

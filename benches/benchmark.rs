@@ -1,6 +1,6 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use dify::diff;
-use image::{io::Reader as ImageReader, RgbaImage};
+use image::{RgbaImage, io::Reader as ImageReader};
 
 fn get_image(path: &str) -> RgbaImage {
     ImageReader::open(path)

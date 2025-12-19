@@ -1,4 +1,4 @@
-use assert_cmd::Command;
+use assert_cmd::{Command, cargo_bin};
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::NamedTempFile;
 use predicates::prelude::*;
@@ -8,19 +8,19 @@ use std::path;
 
 #[test]
 fn test_sanity() {
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     cmd.assert().failure();
 }
 
 #[test]
 fn test_left_argument_is_missing() {
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     cmd.assert().stderr("Error: the LEFT argument is missing\n");
 }
 
 #[test]
 fn test_right_argument_is_missing() {
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let assert = cmd.arg(path::PathBuf::from("./nonexistent-left.file"));
 
     assert
@@ -30,7 +30,7 @@ fn test_right_argument_is_missing() {
 
 #[test]
 fn test_left_does_not_exist() {
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let left = path::PathBuf::from("./nonexistent-left.file");
     let assert = cmd
         .arg(&left)
@@ -52,7 +52,7 @@ Caused by:
 
 #[test]
 fn test_right_does_not_exist() {
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let right = path::PathBuf::from("./nonexistent-right.file");
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
@@ -77,7 +77,7 @@ fn test_identical_image() {
     let output = NamedTempFile::new("test_identical_image-diff.png")
         .unwrap()
         .into_persistent_if(std::env::var_os("CI").is_some());
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
@@ -92,7 +92,7 @@ fn test_identical_image() {
 #[test]
 fn test_different_image() {
     let output = NamedTempFile::new("test_different_image-diff.png").unwrap();
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/tiger-2.jpg").unwrap())
@@ -113,7 +113,7 @@ fn test_output_image() {
     let output = NamedTempFile::new("test_output_image-diff.png")
         .unwrap()
         .into_persistent_if(running_on_ci);
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/tiger-2.jpg").unwrap())
@@ -133,7 +133,7 @@ fn test_output_image_4k() {
     let output = NamedTempFile::new("test_output_image_4k-diff.png")
         .unwrap()
         .into_persistent_if(std::env::var_os("CI").is_some());
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/water-4k.png").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/water-4k-2.png").unwrap())
@@ -153,7 +153,7 @@ fn test_output_image_web_page() {
     let output = NamedTempFile::new("test_output_image_web_page-diff.png")
         .unwrap()
         .into_persistent_if(std::env::var_os("CI").is_some());
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/www.cypress.io.png").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/www.cypress.io-2.png").unwrap())
@@ -174,7 +174,7 @@ fn test_block_out_area() {
     let output = NamedTempFile::new("test_block_out_area-diff.png")
         .unwrap()
         .into_persistent_if(running_on_ci);
-    let mut cmd = Command::cargo_bin("dify").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
     let assert = cmd
         .arg(fs::canonicalize("./benches/fixtures/tiger.jpg").unwrap())
         .arg(fs::canonicalize("./benches/fixtures/yellow.jpg").unwrap())
