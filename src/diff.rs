@@ -1,5 +1,5 @@
 use super::{antialiased, cli, yiq::Yiq};
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use colored::*;
 use image::{GenericImageView, ImageBuffer, ImageFormat, ImageReader, Pixel, Rgba, RgbaImage};
 use std::collections::HashSet;
@@ -136,12 +136,14 @@ pub fn run(params: &RunParams) -> Result<Option<i32>> {
     let right_dimensions = right_image.dimensions();
 
     if !params.do_not_check_dimensions && left_dimensions != right_dimensions {
-        return Err(anyhow!(format!(
-            "dimensions of the left and right image are different, left: {}, right: {}",
-            format!("{}x{}", left_dimensions.0, left_dimensions.1).magenta(),
-            format!("{}x{}", right_dimensions.0, right_dimensions.1).magenta(),
-        )
-        .red()));
+        return Err(anyhow!(
+            format!(
+                "dimensions of the left and right image are different, left: {}, right: {}",
+                format!("{}x{}", left_dimensions.0, left_dimensions.1).magenta(),
+                format!("{}x{}", right_dimensions.0, right_dimensions.1).magenta(),
+            )
+            .red()
+        ));
     };
 
     let threshold = MAX_YIQ_POSSIBLE_DELTA * params.threshold * params.threshold;

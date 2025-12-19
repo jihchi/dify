@@ -58,11 +58,7 @@ impl Yiq {
         let delta_q = self.q - other.q;
         let delta = 0.5053 * delta_y.powi(2) + 0.299 * delta_i.powi(2) + 0.195_7 * delta_q.powi(2);
 
-        if self.y > other.y {
-            -delta
-        } else {
-            delta
-        }
+        if self.y > other.y { -delta } else { delta }
     }
 }
 
