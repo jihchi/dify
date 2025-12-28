@@ -1,6 +1,6 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use dify::diff;
-use image::{RgbaImage, io::Reader as ImageReader};
+use image::{ImageReader, RgbaImage};
 
 fn get_image(path: &str) -> RgbaImage {
     ImageReader::open(path)
@@ -29,12 +29,13 @@ fn criterion_benchmark(c: &mut Criterion) {
 
         b.iter(|| {
             diff::get_results(
-                &left_image,
-                &right_image,
+                left_image.clone(),
+                right_image.clone(),
                 default_run_params.threshold,
-                default_run_params.do_not_check_dimensions,
+                default_run_params.detect_anti_aliased_pixels,
                 default_run_params.blend_factor_of_unchanged_pixels,
                 &default_run_params.output_image_base,
+                &default_run_params.block_out_areas,
             )
         })
     });
@@ -45,12 +46,13 @@ fn criterion_benchmark(c: &mut Criterion) {
 
         b.iter(|| {
             diff::get_results(
-                &left_image,
-                &right_image,
+                left_image.clone(),
+                right_image.clone(),
                 default_run_params.threshold,
-                default_run_params.do_not_check_dimensions,
+                default_run_params.detect_anti_aliased_pixels,
                 default_run_params.blend_factor_of_unchanged_pixels,
                 &default_run_params.output_image_base,
+                &default_run_params.block_out_areas,
             )
         })
     });
@@ -61,12 +63,13 @@ fn criterion_benchmark(c: &mut Criterion) {
 
         b.iter(|| {
             diff::get_results(
-                &left_image,
-                &right_image,
+                left_image.clone(),
+                right_image.clone(),
                 default_run_params.threshold,
-                default_run_params.do_not_check_dimensions,
+                default_run_params.detect_anti_aliased_pixels,
                 default_run_params.blend_factor_of_unchanged_pixels,
                 &default_run_params.output_image_base,
+                &default_run_params.block_out_areas,
             )
         })
     });

@@ -64,8 +64,9 @@ pub fn get_results(
             {
                 DiffResult::BlockedOut(x, y)
             } else {
-                let left_pixel = Yiq::from_rgba(left_pixel);
-                let right_pixel = Yiq::from_rgba(right_pixel);
+                let pos = y.saturating_mul(width).saturating_add(x) as usize;
+                let left_pixel = Yiq::from_rgba_with_pos(left_pixel, pos);
+                let right_pixel = Yiq::from_rgba_with_pos(right_pixel, pos);
                 let delta = left_pixel.squared_distance(&right_pixel);
 
                 if delta.abs() > threshold {
@@ -99,10 +100,10 @@ pub fn get_results(
             DiffResult::Identical(x, y) | DiffResult::BelowThreshold(x, y) => {
                 if let Some(alpha) = blend_factor_of_unchanged_pixels {
                     let left_pixel = left_image.get_pixel(x, y);
-                    let yiq_y = Yiq::rgb2y(&left_pixel.to_rgb());
+                    let pos = y.saturating_mul(width).saturating_add(x) as usize;
+                    let yiq = Yiq::from_rgba_with_pos(left_pixel, pos);
                     let rgba_a = left_pixel.channels()[3] as f32;
-                    let color =
-                        super::blend_semi_transparent_white(yiq_y, alpha * rgba_a / 255.0) as u8;
+                    let color = yiq.blend_with_white(alpha * rgba_a / 255.0) as u8;
 
                     output_image.put_pixel(x, y, Rgba([color, color, color, u8::MAX]));
                 }

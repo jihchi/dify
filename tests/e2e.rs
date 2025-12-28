@@ -42,10 +42,11 @@ fn test_left_does_not_exist() {
 Caused by:
     {} (os error 2)
 "#,
-        left.display().to_string(),
+        left.display(),
         match consts::OS {
             "windows" => "The system cannot find the file specified.",
-            "linux" | "macos" | _ => "No such file or directory",
+            "linux" | "macos" => "No such file or directory",
+            _ => "<Unsupported operation system>",
         }
     ));
 }
@@ -64,10 +65,11 @@ fn test_right_does_not_exist() {
 Caused by:
     {} (os error 2)
 "#,
-        right.display().to_string(),
+        right.display(),
         match consts::OS {
             "windows" => "The system cannot find the file specified.",
-            "linux" | "macos" | _ => "No such file or directory",
+            "linux" | "macos" => "No such file or directory",
+            _ => "<Unsupported operation system>",
         }
     ));
 }
@@ -101,7 +103,8 @@ fn test_different_image() {
 
     assert.assert().code(match consts::OS {
         "windows" => 7787,
-        "linux" | "macos" | _ => 106,
+        "linux" | "macos" => 106,
+        _ => 106,
     });
 
     output.close().unwrap();
@@ -189,6 +192,27 @@ fn test_block_out_area() {
     output.assert(predicate::path::eq_file(
         fs::canonicalize("./benches/fixtures/test_block_out_area-diff.png").unwrap(),
     ));
+
+    output.close().unwrap();
+}
+
+// https://github.com/jihchi/dify/issues/32
+// Test images provided by https://github.com/lucasmerlin
+#[test]
+fn test_issue_32_transparent_vs_opaque_black() {
+    let output = NamedTempFile::new("test_transparent_black.png").unwrap();
+    let mut cmd = Command::new(cargo_bin!("dify"));
+    let assert = cmd
+        .arg(fs::canonicalize("./tests/fixtures/black_transparent.png").unwrap())
+        .arg(fs::canonicalize("./tests/fixtures/black_opaque.png").unwrap())
+        .arg("--output")
+        .arg(output.path().display().to_string());
+
+    assert.assert().code(match consts::OS {
+        "windows" => 7787,
+        "linux" | "macos" => 212,
+        _ => 212,
+    });
 
     output.close().unwrap();
 }
